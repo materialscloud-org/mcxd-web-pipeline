@@ -1,0 +1,49 @@
+{
+  "index-columns": [
+    {
+      "label": "matdyn_highest_phonon_frequency",
+      "data_path": "phonons.matdyn_highest_phonon_frequency",
+      "data_label": "ph_mhpf",
+      "name": "[Phonons] highest phonon ω",
+      "type": "float",
+      "unit": "meV",
+      "description": "The highest phonon frequency."
+    },
+    {
+      "label": "highest_phonon_frequency",
+      "data_path": "supercon.highest_phonon_frequency",
+      "data_label": "sc_hpf",
+      "name": "[Supercond.] highest phonon ω",
+      "type": "float",
+      "unit": "meV",
+      "description": "The highest phonon frequency."
+    },
+    {
+      "label": "allen_dynes_tc",
+      "data_path": "supercon.allen_dynes_tc",
+      "data_label": "sc_ad_tc",
+      "name": "[Supercond.] Allen-Dynes Tc",
+      "type": "float",
+      "unit": "K",
+      "description": "The superconducting transition temperature by Allen-Dynes formula."
+    },
+    {
+      "label": "isotropic_tc",
+      "data_path": "supercon.iso_tc",
+      "data_label": "sc_iso_tc",
+      "name": "[Supercond.] Migdal-Eliashberg iso Tc",
+      "type": "float",
+      "unit": "K",
+      "description": "The superconducting transition temperature by Migdal-Eliashberg theory at isotropic approximation."
+    },
+    {
+      "label": "anisotropic_tc",
+      "data_path": "supercon.aniso_info.Tc",
+      "data_label": "sc_aniso_tc",
+      "name": "[Supercond.] Migdal-Eliashberg aniso Tc",
+      "type": "float",
+      "unit": "K",
+      "description": "The superconducting transition temperature by anisotropic Migdal-Eliashberg theory."
+    }
+  ]
+}

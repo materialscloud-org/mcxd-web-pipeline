@@ -1,0 +1,18 @@
+{
+  "index-columns": [
+    {
+      "label": "num_elements",
+      "data_path": "example.num_elements",
+      "data_label": "nel",
+      "name": "Number of elements",
+      "type": "integer"
+    }
+  ],
+  "info": {
+    "example": {
+      "num_elements": {
+        "unit": "unitless"
+      }
+    }
+  }
+}

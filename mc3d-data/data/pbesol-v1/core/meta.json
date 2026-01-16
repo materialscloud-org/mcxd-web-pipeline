@@ -1,0 +1,116 @@
+{
+  "index-columns": [
+    {
+      "label": "formula",
+      "data_path": "general.formula",
+      "data_label": "formula",
+      "name": "Formula",
+      "type": "formula",
+      "description": "The reduced chemical formula in IUPAC notation."
+    },
+    {
+      "label": "formula_hill",
+      "data_path": "general.formula_hill",
+      "data_label": "formula_h",
+      "name": "Hill formula",
+      "type": "formula",
+      "description": "The full chemical formula in Hill notation."
+    },
+    {
+      "label": "spacegroup_number",
+      "data_path": "general.spacegroup_number",
+      "data_label": "sg",
+      "name": "Space group number",
+      "type": "integer"
+    },
+    {
+      "label": "source_db",
+      "data_path": "source.database",
+      "array_index": 0,
+      "data_label": "sdb",
+      "name": "Source database",
+      "type": "text",
+      "description": "Source database, where the original crystal originates from."
+    },
+    {
+      "label": "source_db_id",
+      "data_path": "source.id",
+      "array_index": 0,
+      "data_label": "sid",
+      "name": "Source database ID",
+      "type": "text",
+      "description": "Source database ID of the original crystal."
+    },
+    {
+      "label": "is_theoretical",
+      "data_path": "source.info.is_theoretical",
+      "array_index": 0,
+      "data_label": "th",
+      "name": "Is source theoretical?",
+      "type": "boolean",
+      "description": "Does the source database report the structure origin as theoretical?"
+    },
+    {
+      "label": "is_high_pressure",
+      "data_path": "source.info.is_high_pressure",
+      "array_index": 0,
+      "data_label": "hp",
+      "name": "Is source high pressure?",
+      "type": "boolean",
+      "description": "Does the source database report the characterization pressure higher than 0.5 GPa?"
+    },
+    {
+      "label": "is_high_temperature",
+      "data_path": "source.info.is_high_temperature",
+      "array_index": 0,
+      "data_label": "ht",
+      "name": "Is source high temperature?",
+      "type": "boolean",
+      "description": "Does the source database report the characterization temperature higher than 100 \u00b0C?"
+    },
+    {
+      "label": "total_magnetization",
+      "data_path": "properties.total_magnetization.value",
+      "data_label": "tm",
+      "name": "Total magnetization",
+      "type": "float",
+      "unit": "\u03bcB/cell",
+      "description": "Total magnetization of the ferromagnetic solution, if it was found."
+    },
+    {
+      "label": "absolute_magnetization",
+      "data_path": "properties.absolute_magnetization.value",
+      "data_label": "am",
+      "name": "Absolute magnetization",
+      "type": "float",
+      "unit": "\u03bcB/cell",
+      "description": "Absolute magnetization of the ferromagnetic solution, if it was found."
+    }
+  ],
+  "info": {
+    "properties": {
+      "absolute_magnetization": {
+        "unit": "\u03bcB/cell"
+      },
+      "cell_volume": {
+        "unit": "\u212b\u00b3"
+      },
+      "total_energy": {
+        "unit": "eV/cell"
+      },
+      "total_magnetization": {
+        "unit": "\u03bcB/cell"
+      }
+    },
+    "source": {
+      "high_pressure_threshold": {
+        "unit": "GPa",
+        "value": 0.5
+      },
+      "high_temperature_threshold": {
+        "unit": "\u00b0C",
+        "value": 100
+      }
+    }
+  }
+}

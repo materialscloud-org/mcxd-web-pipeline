@@ -1,0 +1,14 @@
+.vscode
+*.log
+
+__pycache__
+*.egg-info
+
+build/
+.supercon
+.qebands
+.epwbands
+.backup
+.interactive_phonon
+log
+check.ipynb
