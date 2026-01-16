@@ -1,0 +1,26 @@
+[project]
+name = "mc3d-web-pipeline"
+version = "0.1.0"
+description = "Pipeline to generate the MC3D web metadata"
+readme = "README.md"
+authors = [{ name = "Kristjan Eimre", email = "kristjaneimre@gmail.com" }]
+requires-python = ">=3.10"
+dependencies = [
+  "aiida-core>=2.6",
+  "phonon-web-tools>=0.1.5",
+  "pymatgen==2023.3.10",
+  "pymongo~=4.8",
+  "tqdm>=4.67.1",
+  "aiida_quantumespresso>=4",
+  "click>=8.0",
+  "boto3~=1.40",
+  "convert-bxsf @ git+https://github.com/materialscloud-org/fermisurface-visualiser.git@a0f04a6a080309205f9a0982118d4da1a40adf09#subdirectory=convert-bxsf",
+  "py7zr~=1.0.0",
+]
+
+[project.scripts]
+mc3d-web-pipeline = "mc3d_web_pipeline.cli:cli"
+
+[build-system]
+requires = ["uv_build>=0.9.7,<0.10.0"]
+build-backend = "uv_build"

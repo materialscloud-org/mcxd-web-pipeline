@@ -1,0 +1,17 @@
+mongo:
+  uri: mongodb://localhost:27017/
+  db_name: mc3d
+dataset_info:
+  mc3d:
+    # dataset_label: {relevant external info}
+    pbe-v1:
+      aiida_profile: mc3d-pbe-v1
+    pbesol-v1:
+      aiida_profile: mc3d-pbesol-v1
+    pbesol-v1-supercon:
+      aiida_profile: mc3d-pbesol-v1-supercon
+    pbesol-v1-fermisurf:
+      aiida_profile: mc3d-pbesol-v1-fermisurf
+      bxsf_root_path: ~/mcxd/fermi-surfaces/test_data_mc3d/stash_bxsf
+    pbesol-v2:
+      aiida_profile: mc3d-pbesol-v2
