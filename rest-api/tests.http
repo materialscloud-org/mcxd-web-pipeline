@@ -1,0 +1,19 @@
+## MC3D/pbe-v1
+###
+GET http://localhost:8000/mc3d/pbe-v1/meta
+###
+GET http://localhost:8000/mc3d/pbe-v1/overview
+###
+GET http://localhost:8000/mc3d/pbe-v1/base/mc3d-33980
+###
+GET http://localhost:8000/mc3d/pbe-v1/xrd/mc3d-33980
+###
+GET https://dev-aiida.materialscloud.org/mc-rest-api/mc3d/pbe-v1/overview
+
+## MC2D
+###
+GET http://localhost:8000/mc2d/pbe-v1/meta
+###
+GET http://localhost:8000/mc2d/pbe-v1/overview
+###
+GET http://localhost:8000/mc2d/pbe-v1/base/mc2d-1
