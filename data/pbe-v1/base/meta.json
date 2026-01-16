@@ -1,0 +1,161 @@
+{
+  "index-columns": [
+    {
+      "label": "formula",
+      "data_path": "general.formula",
+      "data_label": "formula",
+      "name": "Formula",
+      "type": "formula",
+      "description": "The reduced chemical formula in IUPAC notation."
+    },
+    {
+      "label": "formula_hill",
+      "data_path": "general.formula_hill",
+      "data_label": "formula_h",
+      "name": "Hill formula",
+      "type": "formula",
+      "description": "The full chemical formula in Hill notation."
+    },
+    {
+      "label": "prototype",
+      "data_path": "general.prototype",
+      "data_label": "prototype",
+      "name": "Prototype",
+      "type": "formula",
+      "description": "The structure prototype chemical formula in IUPAC notation."
+    },
+    {
+      "label": "space_group_number",
+      "data_path": "general.space_group_number",
+      "data_label": "sg",
+      "name": "Space group number",
+      "type": "integer"
+    },
+    {
+      "label": "band_gap",
+      "data_path": "electronic.band_gap.value",
+      "data_label": "bg",
+      "name": "Band gap",
+      "type": "float",
+      "unit": "eV",
+      "description": "Electronic band gap of the 2D monolayer."
+    },
+    {
+      "label": "abundance",
+      "data_path": "general.abundance",
+      "data_label": "abund",
+      "name": "Abundance",
+      "type": "float",
+      "description": "Abundance on the Earth of the rarest of the elements present in the compound."
+    },
+    {
+      "label": "magnetic_state",
+      "data_path": "electronic.magnetic_state",
+      "data_label": "mags",
+      "name": "Magnetic state",
+      "type": "text",
+      "description": "Magnetic state, either 'non-magnetic', 'ferromagnetic', or 'antiferromagnetic'."
+    },
+    {
+      "label": "total_magnetization",
+      "data_path": "electronic.total_magnetization.value",
+      "data_label": "tm",
+      "name": "Total magnetization",
+      "type": "float",
+      "unit": "\u03bcB/cell",
+      "description": "Total magnetization of the 2D monolayer, per unit cell."
+    },
+    {
+      "label": "absolute_magnetization",
+      "data_path": "electronic.absolute_magnetization.value",
+      "data_label": "am",
+      "name": "Absolute magnetization",
+      "type": "float",
+      "unit": "\u03bcB/cell",
+      "description": "Absolute magnetization of the 2D monolayer, per unit cell."
+    },
+    {
+      "label": "phonons_unstable",
+      "data_path": "vibrational.unstable",
+      "data_label": "unstable",
+      "name": "Unstable (soft modes)",
+      "type": "boolean",
+      "description": "Does the structure have negative frequencies (below -10 cm⁻¹)?"
+    },
+    {
+      "label": "binding_energy_df2",
+      "data_path": "parents_3d.binding_energy_df2.value",
+      "array_index": 0,
+      "data_label": "be_df2",
+      "name": "Binding energy DF2-CO9",
+      "type": "float",
+      "unit": "meV/Å\u00b2",
+      "description": "Binding energy calculated with the DF2-CO9 functional."
+    },
+    {
+      "label": "binding_energy_rvv10",
+      "data_path": "parents_3d.binding_energy_rvv10.value",
+      "array_index": 0,
+      "data_label": "be_rvv10",
+      "name": "Binding energy rVV10",
+      "type": "float",
+      "unit": "meV/Å\u00b2",
+      "description": "Binding energy calculated with the rVV10 functional."
+    },
+    {
+      "label": "parent_formula",
+      "data_path": "parents_3d.formula",
+      "array_index": 0,
+      "data_label": "p_formula",
+      "name": "3D parent formula",
+      "type": "formula",
+      "description": "Formula of the primary 3D parent, in Hill notation."
+    },
+    {
+      "label": "parent_space_group_number",
+      "data_path": "parents_3d.space_group_number",
+      "array_index": 0,
+      "data_label": "p_sg",
+      "name": "3D parent space group number",
+      "type": "integer",
+      "description": "Space group number of the primary 3D parent."
+    },
+    {
+      "label": "parent_source_db",
+      "data_path": "parents_3d.source_db",
+      "array_index": 0,
+      "data_label": "p_sdb",
+      "name": "3D parent source DB",
+      "type": "text",
+      "description": "Experimental source database of the primary 3D parent."
+    },
+    {
+      "label": "parent_source_db_id",
+      "data_path": "parents_3d.source_db_id",
+      "array_index": 0,
+      "data_label": "p_sdbid",
+      "name": "3D parent source DB ID",
+      "type": "text",
+      "description": "Experimental source database ID of the primary 3D parent."
+    }
+  ],
+  "info": {
+    "electronic": {
+      "band_gap": {
+        "unit": "eV"
+      },
+      "absolute_magnetization": {
+        "unit": "\u03bcB/cell"
+      },
+      "total_magnetization": {
+        "unit": "\u03bcB/cell"
+      }
+    },
+    "vibrational": {
+      "unstable_threshold": {
+        "value": 10,
+        "unit": "cm⁻¹"
+      }
+    }
+  }
+}
