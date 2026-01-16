@@ -1,0 +1,34 @@
+---
+volumes:
+  mc-mongodb-persist:
+    name: mc-mongodb-persist-01
+
+networks:
+  mc-rest-api-net:
+    name: mc-rest-api-net
+
+services:
+  mongo:
+    container_name: mc-mongodb-container
+    restart: always
+    image: mongo:7
+    volumes:
+      - mc-mongodb-persist:/data/db:rw
+    ports:
+      - 27017:27017
+    networks:
+      - mc-rest-api-net
+
+  mc-rest-api:
+    container_name: mc-rest-api-container
+    build: .
+    restart: always
+    ports:
+      - "8001:80"
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/
+      - ROOT_PATH=/mc-rest-api
+    networks:
+      - mc-rest-api-net
