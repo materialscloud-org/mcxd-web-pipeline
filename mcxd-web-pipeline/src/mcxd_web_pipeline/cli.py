@@ -87,6 +87,22 @@ def mc3d_run_fermisurf_bxsf(prod=False):
     fermisurf.convert_and_upload_all(dev_mode=not prod)
 
 
+@mc3d.command()
+@click.argument("method", type=str)
+@click.argument("selection", type=str)
+def mc3d_upload_s3(method, selection):
+    """
+    Upload collections to S3.
+
+    METHOD - sub-db (e.g. 'pbesol-v2', 'all').
+
+    SELECTION - 'base' for all small base collections, or a large collection name (xrd, supercon_phonon-vis).
+    """
+    mmi = McMongoInjector(mcxd_type="mc3d")
+    su = MongoS3Uploader(mmi.mongo_uri, mmi.mongo_db_name)
+    su.upload_collections(method, selection)
+
+
 # ========================
 # mc2d
 # ========================
@@ -121,31 +137,17 @@ def mc2d_run_phonon_vis():
     mmi.populate_dataset_index()
 
 
-# ========================
-# common
-# ========================
-
-
-@cli.command()
-@click.argument(
-    "method",
-    type=str,
-)
-@click.argument(
-    "selection",
-    type=str,
-)
-def upload_s3(method, selection):
+@mc2d.command()
+@click.argument("selection", type=str)
+def mc2d_upload_s3(selection):
     """
     Upload collections to S3.
 
-    METHOD - sub-db (e.g. 'pbesol-v2', 'all').
-
-    SELECTION - 'base' for all small base collections, or a large collection name (xrd, supercon_phonon-vis).
+    SELECTION - 'base' for all small base collections, or a large collection name (phonon-vis).
     """
-    mmi = McMongoInjector()
+    mmi = McMongoInjector(mcxd_type="mc2d")
     su = MongoS3Uploader(mmi.mongo_uri, mmi.mongo_db_name)
-    su.upload_collections(method, selection)
+    su.upload_collections("pbe-v1", selection)
 
 
 if __name__ == "__main__":
