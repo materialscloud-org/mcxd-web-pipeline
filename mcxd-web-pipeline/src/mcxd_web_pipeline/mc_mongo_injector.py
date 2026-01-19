@@ -1,7 +1,7 @@
 """
-Module to inject MC3D data into a MongoDB database.
+Module to inject MCXD data into a MongoDB database.
 
-* Step 1: Populate the database from pre-generated JSON files.
+* Step 1: Populate the database from the pre-generated JSON files.
 * Step 2: Generate derived collections from the base data.
     * structure uuids
     * overview table
@@ -14,17 +14,18 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-import yaml
 from pymongo import MongoClient
 
-from mc3d_web_pipeline.supercon.phonon_vis import populate_supercon_phonon_vis
-from mc3d_web_pipeline.xrd import populate_xrd_parallel
+from mcxd_web_pipeline.config import CONFIG, REPO_ROOT
+from mcxd_web_pipeline.mc3d.pbesol_v1.supercon.phonon_vis import (
+    populate_supercon_phonon_vis,
+)
+from mcxd_web_pipeline.mc3d.xrd import populate_xrd_parallel
 
-PACKAGE_ROOT = Path(__file__).resolve().parent.parent.parent
 
-DATA_FOLDER = PACKAGE_ROOT.parent / "data"
-
-CONFIG_PATH = PACKAGE_ROOT / "config.yaml"
+def get_data_folder(mcxd_type: str) -> Path:
+    """Get the data folder for a given MCXD type."""
+    return REPO_ROOT / f"{mcxd_type}-data" / "data"
 
 
 def _check_mongodb(client):
@@ -34,6 +35,10 @@ def _check_mongodb(client):
     except Exception as e:
         print(f"Failed to connect to MongoDB: {e}")
         exit(1)
+
+
+def _get_aiida_profiles(mcxd_type) -> dict[str, str]:
+    return {k: v["aiida_profile"] for k, v in CONFIG["info"][mcxd_type].items()}
 
 
 def _check_aiida_profiles(aiida_profiles):
@@ -52,23 +57,19 @@ def _check_aiida_profiles(aiida_profiles):
             )
 
 
-class McDataInjector:
-    def __init__(self, db_label: str = "mc3d"):
-        self.db_label = db_label
+class McMongoInjector:
+    def __init__(self, mcxd_type: str = "mc3d"):
+        self.mcxd_type = mcxd_type
 
-        # Load config
-        with open(CONFIG_PATH) as handle:
-            self.config = yaml.safe_load(handle)
-
-        self.mongo_uri = self.config["mongo"]["uri"]
-        self.mongo_db_name = self.config["mongo"]["db_name"]
+        self.mongo_uri = CONFIG["mongo"]["uri"]
+        self.mongo_db_name = CONFIG["mongo"][f"{mcxd_type}_db_name"]
 
         self.client = MongoClient(self.mongo_uri)
         _check_mongodb(self.client)
 
         self.db = self.client[self.mongo_db_name]
 
-        self.aiida_profiles = self.config["aiida-profiles"][self.db_label]
+        self.aiida_profiles = _get_aiida_profiles(self.mcxd_type)
         _check_aiida_profiles(self.aiida_profiles)
 
         self.dataset_labels = {}
@@ -98,7 +99,7 @@ class McDataInjector:
 
         Relatively fast, can be done on each update.
         """
-        for method_path in DATA_FOLDER.iterdir():
+        for method_path in get_data_folder(self.mcxd_type).iterdir():
             method_ = method_path.name
             if method != "all" and method_ != method:
                 continue
@@ -140,9 +141,12 @@ class McDataInjector:
 
         print(f"Populating {coll_name}")
         for doc in self.db[coll_core].find():
-            uuid = doc.get("general", {}).get("structure_uuid", None)
-            if uuid is None:
-                uuid = doc.get("general", {}).get("uuid_structure", None)
+            if self.mcxd_type == "mc2d":
+                uuid = doc.get("general", {}).get("structure_relaxed_uuid", None)
+            else:
+                uuid = doc.get("general", {}).get("structure_uuid", None)
+                if uuid is None:
+                    uuid = doc.get("general", {}).get("uuid_structure", None)
             if uuid:
                 entry = {"_id": doc["_id"], "uuid": uuid}
                 self.db[coll_name].replace_one({"_id": doc["_id"]}, entry, upsert=True)
@@ -250,8 +254,8 @@ class McDataInjector:
             regen_existing=regen_existing,
         )
 
-    def populate_contrib_index(self):
-        """Populate the contributions index for each MC3D-ID."""
+    def populate_dataset_index(self):
+        """Populate the contributions index for each MCXD-ID."""
 
         target_coll = "dataset-index"
 
@@ -259,7 +263,7 @@ class McDataInjector:
 
         coll_names = self.db.list_collection_names()
 
-        # contrib_index[mc3d_id][method] -> list of collection-suffixes
+        # contrib_index[mcxd_id][method] -> list of collection-suffixes
         contrib_index = defaultdict(lambda: defaultdict(list))
 
         for coll_name in coll_names:
@@ -277,16 +281,16 @@ class McDataInjector:
             method = parts[0]
             rest = "_".join(parts[1:]) if len(parts) > 1 else ""
 
-            # check if the collection has entries enumerated by the mc3d-id
+            # check if the collection has entries enumerated by the mcxd-id
             sample = coll.find_one()
             if not sample or "_id" not in sample:
                 continue
 
-            # only consider collections whose _id looks like an mc3d-id
-            if "mc3d-" not in str(sample["_id"]):
+            # only consider collections whose _id looks like an mcxd-id
+            if f"{self.mcxd_type}-" not in str(sample["_id"]):
                 continue
 
-            # get all mc3d-ids
+            # get all mcxd-ids
             ids = coll.distinct("_id")
 
             for _id in ids:
@@ -299,12 +303,12 @@ class McDataInjector:
         print(f"Populating {target_coll}")
         out_coll = self.db[target_coll]
 
-        # write one document per mc3d-id
+        # write one document per mcxd-id
         docs = []
-        for mc3d_id, methods_dict in contrib_index.items():
+        for mcxd_id, methods_dict in contrib_index.items():
             docs.append(
                 {
-                    "_id": mc3d_id,
+                    "_id": mcxd_id,
                     "index": dict(methods_dict),
                 }
             )
@@ -312,4 +316,4 @@ class McDataInjector:
         if docs:
             out_coll.insert_many(docs)
         else:
-            print("No MC3D-indexed contributions found.")
+            print("No MCXD-indexed contributions found.")

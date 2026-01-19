@@ -1,7 +1,12 @@
 mongo:
   uri: mongodb://localhost:27017/
-  db_name: mc3d
-dataset_info:
+  mc3d_db_name: mc3d
+  mc2d_db_name: mc2d
+s3:
+  private_bucket: mc-discover-mcxd
+  public_bucket: mc-discover-mcxd-public
+info:
+  # --------------------------------- #
   mc3d:
     # dataset_label: {relevant external info}
     pbe-v1:
@@ -15,3 +20,8 @@ dataset_info:
       bxsf_root_path: ~/mcxd/fermi-surfaces/test_data_mc3d/stash_bxsf
     pbesol-v2:
       aiida_profile: mc3d-pbesol-v2
+  # --------------------------------- #
+  mc2d:
+    # dataset_label: {relevant external info}
+    pbe-v1:
+      aiida_profile: mc2d

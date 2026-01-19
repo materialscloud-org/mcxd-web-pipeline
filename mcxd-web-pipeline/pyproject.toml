@@ -1,7 +1,7 @@
 [project]
-name = "mc3d-web-pipeline"
+name = "mcxd-web-pipeline"
 version = "0.1.0"
-description = "Pipeline to generate the MC3D web metadata"
+description = "Pipeline to generate the MCXD web metadata"
 readme = "README.md"
 authors = [{ name = "Kristjan Eimre", email = "kristjaneimre@gmail.com" }]
 requires-python = ">=3.10"
@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mc3d-web-pipeline = "mc3d_web_pipeline.cli:cli"
+mcxd-web-pipeline = "mcxd_web_pipeline.cli:cli"
 
 [build-system]
 requires = ["uv_build>=0.9.7,<0.10.0"]

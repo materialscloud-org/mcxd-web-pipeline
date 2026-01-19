@@ -16,7 +16,7 @@ flowchart LR
 
     A[mcxd-web-pipeline] --> B[MongoDB]
     A[mcxd-web-pipeline] --> C[S3: mc-discover-mcxd-public]
-    B --> G[mcxd-rest-api]
+    B --> G[rest-api]
     C --> K[Frontend]
     G --> K
 ```
