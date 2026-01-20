@@ -21,3 +21,8 @@ flowchart LR
     C --> K[Frontend]
     G --> K
 ```
+
+The frontends are hosted at
+
+- https://mc3d.materialscloud.org
+- https://mc2d.materialscloud.org
