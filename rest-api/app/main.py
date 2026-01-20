@@ -4,7 +4,7 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from pymongo.errors import NetworkTimeout, ServerSelectionTimeoutError
 
 from .routers import mc2d_router, mc3d_router
@@ -44,6 +44,11 @@ async def add_exception_handling(request: Request, call_next):
             status_code=500,
             content={"detail": f"An unexpected error occurred: {str(e)}"},
         )
+
+
+@app.get("/", include_in_schema=False)
+async def redirect_to_docs():
+    return RedirectResponse(url="/docs")
 
 
 # Include routers
