@@ -1,0 +1,20 @@
+---
+volumes:
+  mcxd-mongodb-persist:
+    name: mcxd-mongodb-persist-01
+
+networks:
+  mcxd-mongodb-net:
+    name: mcxd-mongodb-net
+
+services:
+  mongo:
+    container_name: mcxd-mongodb-container
+    restart: always
+    image: mongo:7
+    volumes:
+      - mcxd-mongodb-persist:/data/db:rw
+    ports:
+      - 27017:27017
+    networks:
+      - mcxd-mongodb-net

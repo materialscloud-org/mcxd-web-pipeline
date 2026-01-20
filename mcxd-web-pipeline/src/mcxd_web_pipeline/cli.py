@@ -87,7 +87,7 @@ def mc3d_run_fermisurf_bxsf(prod=False):
     fermisurf.convert_and_upload_all(dev_mode=not prod)
 
 
-@mc3d.command()
+@mc3d.command("upload-s3")
 @click.argument("method", type=str)
 @click.argument("selection", type=str)
 def mc3d_upload_s3(method, selection):
@@ -99,7 +99,7 @@ def mc3d_upload_s3(method, selection):
     SELECTION - 'base' for all small base collections, or a large collection name (xrd, supercon_phonon-vis).
     """
     mmi = McMongoInjector(mcxd_type="mc3d")
-    su = MongoS3Uploader(mmi.mongo_uri, mmi.mongo_db_name)
+    su = MongoS3Uploader(mmi.mongo_uri, mmi.mongo_db_name, "mc3d")
     su.upload_collections(method, selection)
 
 
@@ -137,16 +137,16 @@ def mc2d_run_phonon_vis():
     mmi.populate_dataset_index()
 
 
-@mc2d.command()
+@mc2d.command("upload-s3")
 @click.argument("selection", type=str)
 def mc2d_upload_s3(selection):
     """
     Upload collections to S3.
 
-    SELECTION - 'base' for all small base collections, or a large collection name (phonon-vis).
+    SELECTION - 'base' for all small base collections.
     """
     mmi = McMongoInjector(mcxd_type="mc2d")
-    su = MongoS3Uploader(mmi.mongo_uri, mmi.mongo_db_name)
+    su = MongoS3Uploader(mmi.mongo_uri, mmi.mongo_db_name, "mc2d")
     su.upload_collections("pbe-v1", selection)
 
 

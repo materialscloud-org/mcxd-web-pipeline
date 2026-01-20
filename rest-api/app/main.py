@@ -5,20 +5,14 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
-from pymongo import MongoClient
 from pymongo.errors import NetworkTimeout, ServerSelectionTimeoutError
 
 from .routers import mc2d_router, mc3d_router
+from .utils import check_mongodb
 
-MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
+check_mongodb()
+
 ROOT_PATH = os.environ.get("ROOT_PATH", "")
-
-# Initialize MongoDB client (shared across routers)
-mongo_client = MongoClient(
-    MONGODB_URI,
-    socketTimeoutMS=5000,
-    connectTimeoutMS=5000,
-)
 
 app = FastAPI(docs_url="/docs", openapi_url="/openapi.json", root_path=ROOT_PATH)
 

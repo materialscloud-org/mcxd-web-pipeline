@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from pymongo import MongoClient
 
-MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
+MONGODB_URI = os.environ.get("MC_MONGODB_URI", "mongodb://localhost:27017")
 
 _mongo_client = None
 
@@ -22,6 +22,15 @@ def get_mongo_client():
             connectTimeoutMS=5000,
         )
     return _mongo_client
+
+
+def check_mongodb():
+    try:
+        get_mongo_client().admin.command("ping")
+        print("MongoDB connection successful.")
+    except Exception as e:
+        print(f"Failed to connect to MongoDB: {e}")
+        exit(1)
 
 
 @lru_cache(maxsize=32)

@@ -1,11 +1,11 @@
 ---
 networks:
-  mc-rest-api-net:
+  mcxd-mongodb-net:
     external: true
 
 services:
-  mc-mongo-populate:
-    container_name: mc-mongo-populate-container
+  mcxd-mongo-populate:
+    container_name: mcxd-mongo-populate-container
     build: .
     environment:
       - MONGODB_URI=mongodb://mongo:27017/
@@ -13,6 +13,6 @@ services:
       - S3_ACCESS_KEY=${S3_ACCESS_KEY}
       - S3_SECRET_KEY=${S3_SECRET_KEY}
       - S3_BUCKET=mc-discover-mcxd
-      - S3_PREFIX=mc3d-mongo-dumps/collections-v2/
+      - S3_PREFIX=mc2d-mongo-dumps/collections-v2/
     networks:
-      - mc-rest-api-net
+      - mcxd-mongodb-net

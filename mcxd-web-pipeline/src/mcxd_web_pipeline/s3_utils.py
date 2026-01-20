@@ -11,16 +11,15 @@ import boto3
 from botocore.config import Config
 from pymongo import MongoClient
 
-DB_NAME = "mc3d"
-
 S3_ENDPOINT_URL = os.environ["S3_ENDPOINT_URL"]
 S3_ACCESS_KEY = os.environ["S3_ACCESS_KEY"]
 S3_SECRET_KEY = os.environ["S3_SECRET_KEY"]
 
 S3_BUCKET = "mc-discover-mcxd"
-S3_PREFIX = f"{DB_NAME}-mongo-dumps/collections-v2/"
 
-LARGE_COLLECTIONS = ["xrd", "supercon_phonon-vis"]
+LARGE_COLLECTIONS = {
+    "mc3d": ["xrd", "supercon_phonon-vis"],
+}
 
 # keep s3 loaded in a global variable
 _s3_client = None
@@ -50,11 +49,14 @@ def upload_file_to_s3(file_path, s3_bucket, s3_key, extra_args={}):
 
 
 class MongoS3Uploader:
-    def __init__(self, mongo_uri, mongo_db_name):
+    def __init__(self, mongo_uri, mongo_db_name, mcxd_type):
         self.s3 = get_s3_client()
 
         self.mongo_uri = mongo_uri
         self.mongo_db_name = mongo_db_name
+
+        self.mcxd_type = mcxd_type
+        self.s3_prefix = f"{mcxd_type}-mongo-dumps/collections-v2/"
 
         # get all collection names
         client = MongoClient(self.mongo_uri)
@@ -81,9 +83,9 @@ class MongoS3Uploader:
                 pass
             elif selection == "base":
                 # skip large selections
-                if any(ls in coll for ls in LARGE_COLLECTIONS):
+                if any(ls in coll for ls in LARGE_COLLECTIONS[self.mcxd_type]):
                     continue
-            elif selection in LARGE_COLLECTIONS:
+            elif selection in LARGE_COLLECTIONS[self.mcxd_type]:
                 # for large selections, include only the selected ones
                 if selection not in coll:
                     continue
@@ -113,9 +115,9 @@ class MongoS3Uploader:
 
         # === Dump & upload ===
         for coll in selected_collections:
-            archive_name = f"{DB_NAME}-{coll}-dump-{timestamp}.archive.gz"
+            archive_name = f"{self.mcxd_type}-{coll}-dump-{timestamp}.archive.gz"
             local_archive_path = os.path.join(tmp_dir, archive_name)
-            s3_key = f"{S3_PREFIX}{coll}/{archive_name}"
+            s3_key = f"{self.s3_prefix}{coll}/{archive_name}"
 
             print(f"Dumping collection: {coll}...")
             with open(local_archive_path, "wb") as f:
