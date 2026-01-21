@@ -17,7 +17,7 @@ BXSF_ARCHIVE_NAME = "bxsf.7z"
 BXSF_FILE_NAME = "wjl.bxsf"
 
 ENERGY_WINDOW = [-2, 2]  # eV
-RESOLUTION = 20
+RESOLUTION = 30
 
 FERMI_SURF_BASE_COLL = "pbesol-v1_fermisurf_base"
 
