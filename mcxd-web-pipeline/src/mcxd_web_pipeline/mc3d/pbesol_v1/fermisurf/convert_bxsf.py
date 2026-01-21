@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import gzip
+import brotli
 import shutil
 import tempfile
 from pathlib import Path
@@ -30,7 +30,9 @@ def get_bxsf_path_from_uuid(uuid, bxsf_root_path):
     return bxsf_root_path / part1 / part2 / part3 / BXSF_ARCHIVE_NAME
 
 
-def extract_and_process(path: Path, mc3d_id: str, s3_prefix: str):
+def extract_and_process(
+    path: Path, mc3d_id: str, s3_prefix: str, compressionlevel: int = 11
+):
     """Extract the .7z to a temp folder, generate the json, gzip and upload."""
     if not path.exists():
         raise FileNotFoundError(path)
@@ -55,22 +57,23 @@ def extract_and_process(path: Path, mc3d_id: str, s3_prefix: str):
             output_path=json_path,
         )
 
-        gz_path = json_path.with_suffix(json_path.suffix + ".gz")
-        with (
-            json_path.open("rb") as f_in,
-            gzip.open(gz_path, "wb", compresslevel=6) as f_out,
-        ):
-            shutil.copyfileobj(f_in, f_out)
+        br_path = json_path.with_suffix(json_path.suffix + ".br")
 
-        if not gz_path.exists():
-            raise RuntimeError(f"Gzip step failed to produce: {gz_path}")
+        with json_path.open("rb") as f_in:
+            compressed_data = brotli.compress(f_in.read(), quality=compressionlevel)
+
+        with br_path.open("wb") as f_out:
+            f_out.write(compressed_data)
+
+        if not br_path.exists():
+            raise RuntimeError(f"Gzip step failed to produce: {br_path}")
 
         s3_extras = {
-            "ContentType": "application/json",
-            "ContentEncoding": "gzip",
+            "ContentType": "application/json",  # tell client its json
+            "ContentEncoding": "br",  # with br header
         }
         upload_file_to_s3(
-            gz_path,
+            br_path,
             CONFIG["s3"]["public_bucket"],
             f"{s3_prefix}/{mc3d_id}.json",
             s3_extras,
