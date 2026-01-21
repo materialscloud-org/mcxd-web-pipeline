@@ -1,4 +1,4 @@
-# MongoDB
+# 1. Start an empty MongoDB
 
 Create and run a MongoDB and a docker-network to access the it from other docker containers with
 
@@ -8,7 +8,7 @@ docker compose up -d
 
 Note: Mongodb Compass is a good way to see/debug the database data.
 
-# Populate the MongoDB from S3
+# 2. Populate the MongoDB from S3
 
 To populate the MongoDB with the latest data from S3:
 
@@ -16,7 +16,7 @@ To populate the MongoDB with the latest data from S3:
 cd populate-mongo-from-s3
 ```
 
-Set either
+Set in docker-compose
 
 ```bash
 S3_PREFIX=mc3d-mongo-dumps/collections-v2/
