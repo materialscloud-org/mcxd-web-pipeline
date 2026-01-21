@@ -77,14 +77,10 @@ def mc3d_run_supercon_phonon_vis(regen):
 
 
 @mc3d.command("run-fermisurf-bxsf")
-@click.option(
-    "--prod",
-    is_flag=True,
-    help="Upload to production S3 path instead of dev.",
-)
-def mc3d_run_fermisurf_bxsf(prod=False):
-    """Convert and upload all PBESOL v1 fermisurf BXSF files to S3."""
-    fermisurf.convert_and_upload_all(dev_mode=not prod)
+def mc3d_run_fermisurf_bxsf():
+    """Convert and upload all PBESOL v1 fermisurf BXSF files to the dev S3 path."""
+    # We no longer pass a flag; it is hardcoded to dev logic inside
+    fermisurf.convert_and_upload_all()
 
 
 @mc3d.command("upload-s3")

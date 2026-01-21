@@ -16,7 +16,7 @@ from mcxd_web_pipeline.s3_utils import upload_file_to_s3
 BXSF_ARCHIVE_NAME = "bxsf.7z"
 BXSF_FILE_NAME = "wjl.bxsf"
 
-ENERGY_WINDOW = [-0.5, 0.5]  # eV
+ENERGY_WINDOW = [-2, 2]  # eV
 RESOLUTION = 20
 
 FERMI_SURF_BASE_COLL = "pbesol-v1_fermisurf_base"
@@ -77,7 +77,7 @@ def extract_and_process(path: Path, mc3d_id: str, s3_prefix: str):
         )
 
 
-def convert_and_upload_all(dev_mode=True):
+def convert_and_upload_all():
     """
     Convert all BXSF files to json and upload to S3.
     # check at https://rgw.cscs.ch/matcloud:mc-discover-mcxd-public/mc3d/pbesol-v1_fermisurf/mc3d-55055.json
@@ -93,7 +93,7 @@ def convert_and_upload_all(dev_mode=True):
         CONFIG["info"]["mc3d"]["pbesol-v1-fermisurf"]["bxsf_root_path"]
     ).expanduser()
 
-    s3_prefix = f"{'dev' if dev_mode else 'prod'}/mc3d/pbesol-v1_fermisurf/"
+    s3_prefix = "mc3d/pbesol-v1_fermisurf/dev"
 
     print(
         f"Found {len(ids_and_wjl_uuids)} entries to process from MongoDB {FERMI_SURF_BASE_COLL}"
