@@ -18,14 +18,14 @@ hwcc: {
 }
 ```
 
-| Info                           | Path                          |
-| ------------------------------ | ----------------------------- |
-| Original datafiles             | /original_data/hwcc_json/...  |
-| Original plots png             | /original_data/hwcc_plots/... |
-| New datafiles (webready)       | /data/hwcc_json/              |
-| Script: (_visualise old data_) | /old/plot_hwcc.py             |
-| Script: (_old data -> new_)    | /scripts/format_hwcc.py       |
-| Script: (_visualise new data_) | /scripts/plot_hwcc            |
+| Info                           | Path                                   |
+| ------------------------------ | -------------------------------------- |
+| Original datafiles             | /original_data/hwcc_json/...           |
+| Original plots png             | /original_data/hwcc_plots/...          |
+| New datafiles (webready)       | /data/hwcc_json/                       |
+| Script: (_visualise old data_) | /orginal_data/old_scripts/plot_hwcc.py |
+| Script: (_old data -> new_)    | /scripts/format_hwcc.py                |
+| Script: (_visualise new data_) | /scripts/plot_hwcc                     |
 
 _Note: not all of the materials have hwcc plots, as some were computed with parity_eigv!_
 
