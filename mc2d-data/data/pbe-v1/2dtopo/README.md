@@ -14,7 +14,7 @@ The hwcc tracking information is stored inside a z2pack json file /2dtopo/origin
 hwcc: {
   "k": [n], // x positions of each point, *note this isnt uniform
   "wcc": [m[n]], // yvalues of each point
-  "gaps": [] // the  mid-point maximum wrapped distance at a given x (plotted in red)
+  "gaps": [n] // the  mid-point maximum wrapped distance at a given x (plotted in red)
 }
 ```
 
