@@ -1,0 +1,81 @@
+{
+   "observables": {
+      "db_id": {
+         "units": "",
+         "description": "Chemical formula",
+         "column_group": "3D parent",
+         "label": "DB ID",
+         "order": 8,
+         "default_value": "N/A"
+      },
+      "inversion_strength": {
+         "units": "meV",
+         "description": "Inversion strength of the 2D monolayer, obtained with DFT and the PBE functional with spin-orbit coupling",
+         "column_group": "2D materials",
+         "label": "Inversion strength (DFT-PBE)",
+         "order": 4,
+         "default_value": "N/A"
+      },
+      "space_group": {
+         "units": "",
+         "description": "Space group of the crystal structure",
+         "column_group": "2D materials",
+         "label": "Space group",
+         "order": 2,
+         "default_value": "N/A"
+      },
+      "binding_energy_per_substructure_per_unit_area_rVV10": {
+         "units": "meV / &Aring;<sup>2</sup>",
+         "description": "Binding energy of the bulk 3D, per 2D layer and per unit area,obtained with vdW-rVV10 functional",
+         "column_group": "E<sub>b</sub>",
+         "label": "E<sub>b</sub> (rVV10)",
+         "order": 6,
+         "default_value": "N/A"
+      },
+      "binding_energy_per_substructure_per_unit_area_DF2-C09": {
+         "units": "meV / &Aring;<sup>2</sup>",
+         "description": "Binding energy of the bulk 3D, per 2D layer and per unit area,obtained with vdW-DF2-C09 functional",
+         "column_group": "E<sub>b</sub>",
+         "label": "E<sub>b</sub> (DF2-C09)",
+         "order": 5,
+         "default_value": "N/A"
+      },
+      "source_db": {
+         "units": "",
+         "description": "Database for the 3D parent material",
+         "column_group": "3D parent",
+         "label": "Source DB",
+         "order": 7,
+         "default_value": "N/A"
+      },
+      "band_gap": {
+         "units": "meV",
+         "description": "Electronic band gap of the 2D monolayer, obtained with DFT and the PBE functional with spin-orbit coupling",
+         "column_group": "2D materials",
+         "label": "Band gap (DFT-PBE)",
+         "order": 3,
+         "default_value": "N/A"
+      },
+      "display_formula": {
+         "units": "",
+         "description": "Chemical formula",
+         "column_group": "2D materials",
+         "label": "Formula",
+         "order": 1,
+         "default_value": "N/A"
+      }
+   },
+   "caption_info": {
+      "band_structure_without_SOC": "Energy bands with scalar-relativistic pseudopotentials in a representative windowaround the Fermi energy and along a high-symmetry path.",
+      "phonons": "Phonon frequencies along a high-symmetry path.",
+      "band_structure_with_SOC": "Energy bands with fully-relativistic pseudopotentials in a representative windowaround the Fermi energy and along a high-symmetry path."
+   },
+   "plot_info": {
+      "x_units": "",
+      "x_labels": "Average atomic number <SPAN STYLE=\"text-decoration:overline\">Z</SPAN>",
+      "y_field": "band_gap",
+      "x_field": "Z_avg",
+      "y_labels": "Band gap E<sub>g</sub>",
+      "y_units": "meV"
+   }
+}

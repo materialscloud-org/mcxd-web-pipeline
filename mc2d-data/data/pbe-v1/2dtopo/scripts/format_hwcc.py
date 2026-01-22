@@ -6,7 +6,7 @@ import json
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 original_json_root = os.path.join(SCRIPT_DIR, "../original_data/hwcc_json")
-output_json_root = os.path.join(SCRIPT_DIR, "../data/")
+output_json_root = os.path.join(SCRIPT_DIR, "../data/hwcc_json")
 
 for fname in os.listdir(original_json_root):
     if not fname.endswith("json"):
