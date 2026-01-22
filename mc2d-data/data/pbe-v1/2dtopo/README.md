@@ -54,7 +54,7 @@ Further investigation suggests that actually all the data might be there, just s
 | In2ZnS4     | [mc2d-567](https://mc2d.materialscloud.org/#/details/mc2d-567)   |
 | TaIrTe4     | [mc2d-706](https://mc2d.materialscloud.org/#/details/mc2d-706)   |
 | ZrCl        | [mc2d-126](https://mc2d.materialscloud.org/#/details/mc2d-126)   |
-| Pd2HgSe3    | no matching mc2d                                                 |
+| Pd2HgSe3    | no matching mc2d - IMPORTANT TO FIX?                             |
 | Fe4O6       | [mc2d-2337](https://mc2d.materialscloud.org/#/details/mc2d-2337) |
 | Mo2O17Ta2   | [mc2d-2315](https://mc2d.materialscloud.org/#/details/mc2d-2315) |
 | C2H6Fe2O8P2 | [mc2d-1956](https://mc2d.materialscloud.org/#/details/mc2d-1956) |

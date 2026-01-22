@@ -6,14 +6,13 @@ import json
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 original_json_root = os.path.join(SCRIPT_DIR, "../original_data/hwcc_json")
-output_json_root = os.path.join(SCRIPT_DIR, "../data/hwcc_json")
+output_json_root = os.path.join(SCRIPT_DIR, "../hwcc/")
 
 for fname in os.listdir(original_json_root):
     if not fname.endswith("json"):
         continue
 
     formula, _ = os.path.splitext(fname)
-    toprint = re.sub(r"(\d+)", r"$_{\1}$", formula)
 
     fname = os.path.join(original_json_root, fname)
     result = z2pack.io.load(fname)
@@ -23,7 +22,7 @@ for fname in os.listdir(original_json_root):
         Mirror of z2pack.plot.wcc source code logic, but returns formatted data.
         """
         return {
-            "k": list(surface_result.t),
+            "k": [round(val, 2) for val in surface_result.t],
             "gaps": [round(float(g % 1), 4) for g in surface_result.gap_pos],
             "wcc": [
                 [round(float(x % 1), 4) for x in line.wcc]

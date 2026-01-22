@@ -2,18 +2,18 @@
   "index-columns": [
     {
       "label": "inversion_strength",
-      "data_path": "2dtopo.inversion_strength",
+      "data_path": "inversion_strength",
       "data_label": "topo_istr",
-      "name": "[Insulate] Inversion Strength meV",
+      "name": "[Topology] Inversion Strength",
       "type": "float",
       "unit": "meV",
       "description": "The inversion strength"
     },
     {
       "label": "soc_band_gap",
-      "data_path": "2dtopo.soc_band_gap",
+      "data_path": "soc_band_gap",
       "data_label": "topo_soc_band_gap",
-      "name": "[Insulate] SOC Band Gap meV",
+      "name": "[Topology] SOC Band Gap",
       "type": "float",
       "unit": "meV",
       "description": "The Spin-orbit coupling band gap"
