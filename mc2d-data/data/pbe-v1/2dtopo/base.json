@@ -3193,7 +3193,10 @@
           0.9995
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-255": {
     "soc_bandstructure_uuid": "a92de468-043a-4656-834d-117ce875b8e2",
@@ -4553,7 +4556,10 @@
           0.9536
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-488": {
     "soc_bandstructure_uuid": "5146a218-06e0-4c11-8f57-9d326329a60c",
@@ -9945,7 +9951,10 @@
           0.9899
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-1288": {
     "soc_bandstructure_uuid": "1996eabd-8724-4675-b088-6815d99763dc",
@@ -11105,7 +11114,10 @@
           0.9986
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-206": {
     "soc_bandstructure_uuid": "27900650-713c-4187-b636-c9d3bddea4a7",
@@ -12561,7 +12573,10 @@
           0.9975
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-864": {
     "soc_bandstructure_uuid": "9c2cab2f-6112-4ed4-8bdb-b5081bd7c8bd",
@@ -25177,7 +25192,10 @@
           0.9379
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-396": {
     "soc_bandstructure_uuid": "7eb853cf-a7ed-4efe-b502-f79dc478f531",
@@ -31145,7 +31163,10 @@
           0.9776
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-70": {
     "soc_bandstructure_uuid": "3d79beba-f901-4d4d-9132-cac9bca9ea4e",
@@ -33807,7 +33828,10 @@
           1.0
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-18": {
     "soc_bandstructure_uuid": "7e92c2f6-7f42-4f75-8879-7d100168602c",
@@ -34299,7 +34323,10 @@
           1.0
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-192": {
     "soc_bandstructure_uuid": "a7898b56-4ff3-4c46-8c0b-947faff16a46",
@@ -36863,7 +36890,10 @@
           1.0
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-567": {
     "soc_bandstructure_uuid": "42d57f09-7ed9-4a8c-bcc4-8f2a1f5918cc",
@@ -54935,7 +54965,10 @@
           0.9993
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-706": {
     "soc_bandstructure_uuid": "714eba24-027e-4acf-bd16-df50e12332fb",
@@ -98535,7 +98568,10 @@
           0.9756
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-126": {
     "soc_bandstructure_uuid": "7acb2559-981f-4dbc-b4df-2171a8d9993d",
@@ -99223,7 +99259,10 @@
           1.0
         ]
       ]
-    }
+    },
+    "citations": [
+      "Marrazzo2019"
+    ]
   },
   "mc2d-2337": {
     "soc_bandstructure_uuid": "b778ba3e-5954-4a48-96e7-302ebe202f77",
@@ -102463,7 +102502,10 @@
           0.9754
         ]
       ]
-    }
+    },
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-2315": {
     "soc_bandstructure_uuid": "f5082547-4e20-41e3-bb75-abf83d75458e",
@@ -106159,7 +106201,10 @@
           1.0
         ]
       ]
-    }
+    },
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-1956": {
     "soc_bandstructure_uuid": "a07a868f-c721-4384-a4a9-6b67f07b4b94",
@@ -109199,7 +109244,10 @@
           0.9953
         ]
       ]
-    }
+    },
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-2312": {
     "soc_bandstructure_uuid": "76f1ea65-4bfa-45a1-932b-a13e12c994a8",
@@ -109208,7 +109256,10 @@
     "soc_band_gap": 0,
     "structure_uuid": "ec4c4387-c398-42c4-8722-4c15537ead84",
     "soc_phonon_uuid": null,
-    "hwcc": {}
+    "hwcc": {},
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-1775": {
     "soc_bandstructure_uuid": "1c5b9768-f1a9-4124-ac85-8c719a8e8f57",
@@ -112044,7 +112095,10 @@
           0.99
         ]
       ]
-    }
+    },
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-2366": {
     "soc_bandstructure_uuid": "034c57c3-bd80-4a70-9386-4be675515b18",
@@ -114492,7 +114546,10 @@
           1.0
         ]
       ]
-    }
+    },
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-2514": {
     "soc_bandstructure_uuid": "dbfd9c61-cf97-4439-b771-40219f42d822",
@@ -117140,7 +117197,10 @@
           0.9894
         ]
       ]
-    }
+    },
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-2474": {
     "soc_bandstructure_uuid": "5d57e997-287d-458c-8af8-a96c4264ab80",
@@ -117149,7 +117209,10 @@
     "soc_band_gap": 0,
     "structure_uuid": "e6fe6e2e-d85a-4fd9-bf59-98b3a71bc8ce",
     "soc_phonon_uuid": null,
-    "hwcc": {}
+    "hwcc": {},
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-2291": {
     "soc_bandstructure_uuid": "b776d9fd-29dc-4442-8a06-03d44040db00",
@@ -117158,7 +117221,10 @@
     "soc_band_gap": 48,
     "structure_uuid": "c55a4e06-3199-42d3-9920-ea12bec8b36a",
     "soc_phonon_uuid": null,
-    "hwcc": {}
+    "hwcc": {},
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-1839": {
     "soc_bandstructure_uuid": "f049f729-2872-409b-8e51-dcdd1e2be8bd",
@@ -117167,7 +117233,10 @@
     "soc_band_gap": 0,
     "structure_uuid": "a90c5627-5fe3-402a-9455-67f0d1db159d",
     "soc_phonon_uuid": null,
-    "hwcc": {}
+    "hwcc": {},
+    "citations": [
+      "Grassano2022"
+    ]
   },
   "mc2d-2352": {
     "soc_bandstructure_uuid": "362e55d2-72fe-49ee-80db-a7fb6854724f",
@@ -117176,6 +117245,9 @@
     "soc_band_gap": 0,
     "structure_uuid": "85d8620f-46f0-4770-b9aa-b487cb518ea6",
     "soc_phonon_uuid": null,
-    "hwcc": {}
+    "hwcc": {},
+    "citations": [
+      "Grassano2022"
+    ]
   }
 }

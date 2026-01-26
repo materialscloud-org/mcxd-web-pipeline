@@ -12,30 +12,34 @@ with open(original_data_json, "r") as f:
 
 # Mapping of {Formula: {"id": mc2d_id, "file": filename_no_ext}}
 formula_to_id_mapping = {
-    "Pt2HgSe3": {"id": "mc2d-400", "file": "Hg2Pt4Se6"},
-    "WTe2": {"id": "mc2d-255", "file": "Te4W2"},
-    "RhTaTe4": {"id": "mc2d-488", "file": "Rh2Ta2Te8"},
-    "AsCuLi2": {"id": "mc2d-1288", "file": "AsCuLi2"},
-    "MoTe2": {"id": "mc2d-206", "file": "Mo2Te4"},
-    "TiCu2Te3": {"id": "mc2d-864", "file": "Cu4Te6Ti2"},
-    "IrNbTe4": {"id": "mc2d-396", "file": "Ir2Nb2Te8"},
-    "ZrBr": {"id": "mc2d-70", "file": "Br2Zr2"},
-    "Bi": {"id": "mc2d-18", "file": "Bi2"},
-    "TiNI": {"id": "mc2d-192", "file": "I2N2Ti2"},
-    "In2ZnS4": {"id": "mc2d-567", "file": "In2S4Zn"},
-    "TaIrTe4": {"id": "mc2d-706", "file": "Ir2Ta2Te8"},
-    "ZrCl": {"id": "mc2d-126", "file": "Cl2Zr2"},
-    "Fe4O6": {"id": "mc2d-2337", "file": "Fe4O6"},
-    "Mo2O17Ta2": {"id": "mc2d-2315", "file": "Mo2O17Ta2"},
-    "C2H6Fe2O8P2": {"id": "mc2d-1956", "file": "C2H6Fe2O8P2"},
-    "Br6V2": {"id": "mc2d-2312", "file": "Br6V2"},
-    "Hf2Te10": {"id": "mc2d-1775", "file": "Hf2Te10"},
-    "Hg4N4S4": {"id": "mc2d-2366", "file": "Hg4N4S4"},
-    "Te10Zr2": {"id": "mc2d-2514", "file": "Te10Zr2"},
-    "Cl2Hf2": {"id": "mc2d-2474", "file": "Cl2Hf2"},
-    "Br2Hf2": {"id": "mc2d-2291", "file": "Br2Hf2"},
-    "I4Mo2S4": {"id": "mc2d-1839", "file": "I4Mo2S4"},
-    "BaCr2N2O8": {"id": "mc2d-2352", "file": "BaCr2N2O8"},
+    "Pt2HgSe3": {"id": "mc2d-400", "file": "Hg2Pt4Se6", "citation": "Marrazzo2019"},
+    "WTe2": {"id": "mc2d-255", "file": "Te4W2", "citation": "Marrazzo2019"},
+    "RhTaTe4": {"id": "mc2d-488", "file": "Rh2Ta2Te8", "citation": "Marrazzo2019"},
+    "AsCuLi2": {"id": "mc2d-1288", "file": "AsCuLi2", "citation": "Marrazzo2019"},
+    "MoTe2": {"id": "mc2d-206", "file": "Mo2Te4", "citation": "Marrazzo2019"},
+    "TiCu2Te3": {"id": "mc2d-864", "file": "Cu4Te6Ti2", "citation": "Marrazzo2019"},
+    "IrNbTe4": {"id": "mc2d-396", "file": "Ir2Nb2Te8", "citation": "Marrazzo2019"},
+    "ZrBr": {"id": "mc2d-70", "file": "Br2Zr2", "citation": "Marrazzo2019"},
+    "Bi": {"id": "mc2d-18", "file": "Bi2", "citation": "Marrazzo2019"},
+    "TiNI": {"id": "mc2d-192", "file": "I2N2Ti2", "citation": "Marrazzo2019"},
+    "In2ZnS4": {"id": "mc2d-567", "file": "In2S4Zn", "citation": "Marrazzo2019"},
+    "TaIrTe4": {"id": "mc2d-706", "file": "Ir2Ta2Te8", "citation": "Marrazzo2019"},
+    "ZrCl": {"id": "mc2d-126", "file": "Cl2Zr2", "citation": "Marrazzo2019"},
+    "Fe4O6": {"id": "mc2d-2337", "file": "Fe4O6", "citation": "Grassano2022"},
+    "Mo2O17Ta2": {"id": "mc2d-2315", "file": "Mo2O17Ta2", "citation": "Grassano2022"},
+    "C2H6Fe2O8P2": {
+        "id": "mc2d-1956",
+        "file": "C2H6Fe2O8P2",
+        "citation": "Grassano2022",
+    },
+    "Br6V2": {"id": "mc2d-2312", "file": "Br6V2", "citation": "Grassano2022"},
+    "Hf2Te10": {"id": "mc2d-1775", "file": "Hf2Te10", "citation": "Grassano2022"},
+    "Hg4N4S4": {"id": "mc2d-2366", "file": "Hg4N4S4", "citation": "Grassano2022"},
+    "Te10Zr2": {"id": "mc2d-2514", "file": "Te10Zr2", "citation": "Grassano2022"},
+    "Cl2Hf2": {"id": "mc2d-2474", "file": "Cl2Hf2", "citation": "Grassano2022"},
+    "Br2Hf2": {"id": "mc2d-2291", "file": "Br2Hf2", "citation": "Grassano2022"},
+    "I4Mo2S4": {"id": "mc2d-1839", "file": "I4Mo2S4", "citation": "Grassano2022"},
+    "BaCr2N2O8": {"id": "mc2d-2352", "file": "BaCr2N2O8", "citation": "Grassano2022"},
 }
 
 # rename keys to something reasonable
@@ -53,6 +57,8 @@ final_output = {}
 for formula, mapping_info in formula_to_id_mapping.items():
     mc2d_id = mapping_info["id"]
     filename = mapping_info["file"]
+
+    citations = [mapping_info["citation"]]
 
     # 1.HWCC files
     hwcc_data = {}
@@ -77,6 +83,10 @@ for formula, mapping_info in formula_to_id_mapping.items():
         # 3. Assign to the mapped ID
         final_output[mc2d_id] = clean_entry
         final_output[mc2d_id]["hwcc"] = hwcc_data
+
+        # Add the relevant citation to all of these.
+        final_output[mc2d_id]["citations"] = citations
+
     else:
         print(f"Skipping {formula}: Not found in original data.")
 
