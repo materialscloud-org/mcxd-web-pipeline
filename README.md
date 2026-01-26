@@ -22,7 +22,11 @@ flowchart LR
     G --> K
 ```
 
-The frontends are hosted at
+The corresponding frontend code is located at
+
+- https://github.com/materialscloud-org/discover-mcxd-frontend
+
+and deployed to 
 
 - https://mc3d.materialscloud.org
 - https://mc2d.materialscloud.org
