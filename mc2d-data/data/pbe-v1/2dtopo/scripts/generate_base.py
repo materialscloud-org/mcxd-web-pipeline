@@ -45,7 +45,9 @@ formula_to_id_mapping = {
 # rename keys to something reasonable
 subkey_rename_map = {
     "band_structure_with_SOC": "soc_bandstructure_uuid",
+    "fermi_with_SOC": "fermi_with_SOC",
     "band_structure_without_SOC": "nosoc_bandstructure_uuid",
+    "fermi_without_SOC": "fermi_without_SOC",
     "inversion_strength": "inversion_strength",
     "band_gap": "soc_band_gap",
     "structure": "structure_uuid",  # probably wont need, but useful for debugging.

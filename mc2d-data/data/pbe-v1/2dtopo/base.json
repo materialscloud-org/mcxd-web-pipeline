@@ -1,7 +1,9 @@
 {
   "mc2d-400": {
     "soc_bandstructure_uuid": "a03103b2-6253-42fd-87ae-cdcf7ab2340e",
+    "fermi_with_SOC": -5.012,
     "nosoc_bandstructure_uuid": "bc63c379-6fee-4a41-8e45-3e6b15dc596b",
+    "fermi_without_SOC": -4.96961817861078,
     "inversion_strength": 168,
     "soc_band_gap": 149,
     "structure_uuid": "f7f8c62a-62ed-448e-95cf-7015dc596b0c",
@@ -3200,7 +3202,9 @@
   },
   "mc2d-255": {
     "soc_bandstructure_uuid": "a92de468-043a-4656-834d-117ce875b8e2",
+    "fermi_with_SOC": -4.31416846498267,
     "nosoc_bandstructure_uuid": "730aee20-ce14-4ad6-8915-2117e30523f8",
+    "fermi_without_SOC": -4.43039231444765,
     "inversion_strength": 972,
     "soc_band_gap": 9,
     "structure_uuid": "8afabafa-4254-4c7b-a693-8bd0db3a929f",
@@ -4563,7 +4567,9 @@
   },
   "mc2d-488": {
     "soc_bandstructure_uuid": "5146a218-06e0-4c11-8f57-9d326329a60c",
+    "fermi_with_SOC": -4.44342049610953,
     "nosoc_bandstructure_uuid": "d5b324cd-091b-4339-999b-a2ba34aae060",
+    "fermi_without_SOC": -4.43158048410502,
     "inversion_strength": 215,
     "soc_band_gap": 65,
     "structure_uuid": "15e038b7-9b64-4d14-b877-539778583927",
@@ -9958,7 +9964,9 @@
   },
   "mc2d-1288": {
     "soc_bandstructure_uuid": "1996eabd-8724-4675-b088-6815d99763dc",
+    "fermi_with_SOC": -1.68326789113505,
     "nosoc_bandstructure_uuid": "b934fb86-070d-4ff5-b565-91bb6375b7d1",
+    "fermi_without_SOC": -1.79718179030412,
     "inversion_strength": 80,
     "soc_band_gap": 45,
     "structure_uuid": "c0b90825-7e3d-47d4-bc13-09d0d05c7fe1",
@@ -11121,7 +11129,9 @@
   },
   "mc2d-206": {
     "soc_bandstructure_uuid": "27900650-713c-4187-b636-c9d3bddea4a7",
+    "fermi_with_SOC": -4.2809720861697,
     "nosoc_bandstructure_uuid": "07c04a5a-3d44-408e-bdf4-65b227473182",
+    "fermi_without_SOC": -4.54128062290808,
     "inversion_strength": 408,
     "soc_band_gap": 26,
     "structure_uuid": "8de3a9ee-4de9-4835-80d0-2c4b386698d1",
@@ -12580,7 +12590,9 @@
   },
   "mc2d-864": {
     "soc_bandstructure_uuid": "9c2cab2f-6112-4ed4-8bdb-b5081bd7c8bd",
+    "fermi_with_SOC": -4.44986888570522,
     "nosoc_bandstructure_uuid": "700232f5-e8d4-47c7-9662-838df8a81a12",
+    "fermi_without_SOC": -4.59594884048797,
     "inversion_strength": 21,
     "soc_band_gap": 8,
     "structure_uuid": "1ba50b37-8d9b-455c-82fa-e14355cc510b",
@@ -25199,7 +25211,9 @@
   },
   "mc2d-396": {
     "soc_bandstructure_uuid": "7eb853cf-a7ed-4efe-b502-f79dc478f531",
+    "fermi_with_SOC": -4.48903648635301,
     "nosoc_bandstructure_uuid": "7e31c366-f5cb-466b-a1c7-1e29157bf529",
+    "fermi_without_SOC": -4.47024535036518,
     "inversion_strength": 161,
     "soc_band_gap": 36,
     "structure_uuid": "2521a92b-adb2-4f3a-aa01-4907b0197010",
@@ -31170,7 +31184,9 @@
   },
   "mc2d-70": {
     "soc_bandstructure_uuid": "3d79beba-f901-4d4d-9132-cac9bca9ea4e",
+    "fermi_with_SOC": -3.44406198088404,
     "nosoc_bandstructure_uuid": "3bc96bfd-4ea9-4d77-bbeb-232ba6301a20",
+    "fermi_without_SOC": -3.58916775796,
     "inversion_strength": 45,
     "soc_band_gap": 29,
     "structure_uuid": "13535e66-9d02-41bb-b8c5-ea16f582fb8f",
@@ -33835,7 +33851,9 @@
   },
   "mc2d-18": {
     "soc_bandstructure_uuid": "7e92c2f6-7f42-4f75-8879-7d100168602c",
+    "fermi_with_SOC": -3.89992197740684,
     "nosoc_bandstructure_uuid": "997c796c-bcde-49a2-abb4-c9ae862346c7",
+    "fermi_without_SOC": -4.07738038470729,
     "inversion_strength": 685,
     "soc_band_gap": 545,
     "structure_uuid": "443a4bf0-76c2-4000-97c6-e39f0c9ce91c",
@@ -34330,7 +34348,9 @@
   },
   "mc2d-192": {
     "soc_bandstructure_uuid": "a7898b56-4ff3-4c46-8c0b-947faff16a46",
+    "fermi_with_SOC": -5.35813718806538,
     "nosoc_bandstructure_uuid": "deabd65d-2d28-4bdd-90be-4c957933a47b",
+    "fermi_without_SOC": -5.42155915916908,
     "inversion_strength": 141,
     "soc_band_gap": 18,
     "structure_uuid": "4afd2627-5695-49ee-8e2f-2d1f49bff3bb",
@@ -36897,7 +36917,9 @@
   },
   "mc2d-567": {
     "soc_bandstructure_uuid": "42d57f09-7ed9-4a8c-bcc4-8f2a1f5918cc",
+    "fermi_with_SOC": -5.29572185254661,
     "nosoc_bandstructure_uuid": "047b475a-f899-4cd3-b399-616d4af8c9b1",
+    "fermi_without_SOC": -5.54997365165138,
     "inversion_strength": 191,
     "soc_band_gap": 0,
     "structure_uuid": "4ee771e7-4441-436f-ab30-9eb6ab353bd0",
@@ -54972,7 +54994,9 @@
   },
   "mc2d-706": {
     "soc_bandstructure_uuid": "714eba24-027e-4acf-bd16-df50e12332fb",
+    "fermi_with_SOC": -4.31192856572873,
     "nosoc_bandstructure_uuid": "5f31cf39-1435-45a1-ab6f-1a1ff4ccd424",
+    "fermi_without_SOC": -4.35718164171811,
     "inversion_strength": 204,
     "soc_band_gap": 11,
     "structure_uuid": "6fd851e2-3d4a-4261-b660-54906ff3f1a0",
@@ -98575,7 +98599,9 @@
   },
   "mc2d-126": {
     "soc_bandstructure_uuid": "7acb2559-981f-4dbc-b4df-2171a8d9993d",
+    "fermi_with_SOC": -3.65375703599694,
     "nosoc_bandstructure_uuid": "9d65d6f6-7af7-41b1-866d-8a662ea8834a",
+    "fermi_without_SOC": -3.88320878178305,
     "inversion_strength": 60,
     "soc_band_gap": 39,
     "structure_uuid": "581c62fb-e150-4289-a626-29801db20f34",
@@ -99266,7 +99292,9 @@
   },
   "mc2d-2337": {
     "soc_bandstructure_uuid": "b778ba3e-5954-4a48-96e7-302ebe202f77",
+    "fermi_with_SOC": -2.6658,
     "nosoc_bandstructure_uuid": "10c09a5c-ea8e-42f3-9211-69878cf9beb9",
+    "fermi_without_SOC": -2.6669,
     "inversion_strength": null,
     "soc_band_gap": 0,
     "structure_uuid": "29f59724-654b-471a-bb11-d39500f8e8fa",
@@ -102504,12 +102532,14 @@
       ]
     },
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-2315": {
     "soc_bandstructure_uuid": "f5082547-4e20-41e3-bb75-abf83d75458e",
+    "fermi_with_SOC": -2.4523,
     "nosoc_bandstructure_uuid": "84ab278b-8265-40a5-9028-97c6ebc7fc9f",
+    "fermi_without_SOC": -2.3734,
     "inversion_strength": null,
     "soc_band_gap": 0,
     "structure_uuid": "0d30d5a8-4683-4ad8-bc23-d34f304c9fa4",
@@ -106203,12 +106233,14 @@
       ]
     },
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-1956": {
     "soc_bandstructure_uuid": "a07a868f-c721-4384-a4a9-6b67f07b4b94",
+    "fermi_with_SOC": -1.5345,
     "nosoc_bandstructure_uuid": "8eb22166-da05-4b90-9473-01bf81d1b111",
+    "fermi_without_SOC": -1.5314,
     "inversion_strength": null,
     "soc_band_gap": 0,
     "structure_uuid": "38f28391-8d00-4e77-a483-3c469d3c289a",
@@ -109246,24 +109278,28 @@
       ]
     },
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-2312": {
     "soc_bandstructure_uuid": "76f1ea65-4bfa-45a1-932b-a13e12c994a8",
+    "fermi_with_SOC": -1.2416,
     "nosoc_bandstructure_uuid": "d8635dad-c7a1-4277-b457-4c569939130a",
+    "fermi_without_SOC": -1.2529,
     "inversion_strength": null,
     "soc_band_gap": 0,
     "structure_uuid": "ec4c4387-c398-42c4-8722-4c15537ead84",
     "soc_phonon_uuid": null,
     "hwcc": {},
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-1775": {
     "soc_bandstructure_uuid": "1c5b9768-f1a9-4124-ac85-8c719a8e8f57",
+    "fermi_with_SOC": -0.0346,
     "nosoc_bandstructure_uuid": "3e0afe8b-65b6-4ae8-b656-fbb80e15c547",
+    "fermi_without_SOC": -0.0959,
     "inversion_strength": null,
     "soc_band_gap": 171,
     "structure_uuid": "88fa7dbb-e408-4610-a536-3f1986eb6999",
@@ -112097,12 +112133,14 @@
       ]
     },
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-2366": {
     "soc_bandstructure_uuid": "034c57c3-bd80-4a70-9386-4be675515b18",
+    "fermi_with_SOC": -1.1352,
     "nosoc_bandstructure_uuid": "2d83e432-dafe-4d62-a44c-d790f6dc2154",
+    "fermi_without_SOC": -1.4243,
     "inversion_strength": null,
     "soc_band_gap": 7,
     "structure_uuid": "9dd5ff89-9839-4815-bf98-ccb6d680868f",
@@ -114548,12 +114586,14 @@
       ]
     },
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-2514": {
     "soc_bandstructure_uuid": "dbfd9c61-cf97-4439-b771-40219f42d822",
+    "fermi_with_SOC": -0.1027,
     "nosoc_bandstructure_uuid": "780b1a1f-8f7d-4259-b660-2c9ed930204f",
+    "fermi_without_SOC": -0.1046,
     "inversion_strength": null,
     "soc_band_gap": 220,
     "structure_uuid": "d6396083-a40d-4e66-bd81-63a7360bea81",
@@ -117199,55 +117239,63 @@
       ]
     },
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-2474": {
     "soc_bandstructure_uuid": "5d57e997-287d-458c-8af8-a96c4264ab80",
+    "fermi_with_SOC": 2.0697,
     "nosoc_bandstructure_uuid": "742647ed-bc99-4041-9e39-bab28572b56c",
+    "fermi_without_SOC": 1.6593,
     "inversion_strength": null,
     "soc_band_gap": 0,
     "structure_uuid": "e6fe6e2e-d85a-4fd9-bf59-98b3a71bc8ce",
     "soc_phonon_uuid": null,
     "hwcc": {},
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-2291": {
     "soc_bandstructure_uuid": "b776d9fd-29dc-4442-8a06-03d44040db00",
+    "fermi_with_SOC": 2.3831,
     "nosoc_bandstructure_uuid": "a0bc2904-6e7d-491a-ba67-200793a8c348",
+    "fermi_without_SOC": 1.9859,
     "inversion_strength": null,
     "soc_band_gap": 48,
     "structure_uuid": "c55a4e06-3199-42d3-9920-ea12bec8b36a",
     "soc_phonon_uuid": null,
     "hwcc": {},
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-1839": {
     "soc_bandstructure_uuid": "f049f729-2872-409b-8e51-dcdd1e2be8bd",
+    "fermi_with_SOC": -0.5472,
     "nosoc_bandstructure_uuid": "10d03bbe-40fb-4f05-817d-416b4f5d5eb8",
+    "fermi_without_SOC": -0.5765,
     "inversion_strength": null,
     "soc_band_gap": 0,
     "structure_uuid": "a90c5627-5fe3-402a-9455-67f0d1db159d",
     "soc_phonon_uuid": null,
     "hwcc": {},
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   },
   "mc2d-2352": {
     "soc_bandstructure_uuid": "362e55d2-72fe-49ee-80db-a7fb6854724f",
+    "fermi_with_SOC": -0.8906,
     "nosoc_bandstructure_uuid": "255f4aaa-16f5-478b-aa1b-1772ef54935b",
+    "fermi_without_SOC": -0.891,
     "inversion_strength": null,
     "soc_band_gap": 0,
     "structure_uuid": "85d8620f-46f0-4770-b9aa-b487cb518ea6",
     "soc_phonon_uuid": null,
     "hwcc": {},
     "citations": [
-      "Grassano2022"
+      "Grassano2023"
     ]
   }
 }
