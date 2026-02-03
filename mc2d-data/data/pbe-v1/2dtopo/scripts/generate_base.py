@@ -56,6 +56,18 @@ subkey_rename_map = {
 
 final_output = {}
 
+
+def round_floats(obj, ndigits=4):
+    if isinstance(obj, dict):
+        return {k: round_floats(v, ndigits) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [round_floats(x, ndigits) for x in obj]
+    elif isinstance(obj, float):
+        return round(obj, ndigits)
+    else:
+        return obj
+
+
 for formula, mapping_info in formula_to_id_mapping.items():
     mc2d_id = mapping_info["id"]
     filename = mapping_info["file"]
@@ -77,7 +89,7 @@ for formula, mapping_info in formula_to_id_mapping.items():
     if formula in data:
         # Rename keys from original data
         clean_entry = {
-            subkey_rename_map[k]: data[formula][k]
+            subkey_rename_map[k]: round_floats(data[formula][k])
             for k in subkey_rename_map
             if k in data[formula]
         }

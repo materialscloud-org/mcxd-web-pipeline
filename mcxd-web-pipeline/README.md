@@ -12,5 +12,7 @@ To generate the web metadata:
 
 To deploy any updated data:
 
+You will require mongodump (availible from mongodb database tools)
+
 - dump the mongodb collections & upload to S3 (via CLI);
 - And the Materials Cloud deployment (ArgoCD job, needs a re-run) will import any updated mongoDB collections from S3.
