@@ -22,7 +22,7 @@ for fname in os.listdir(original_json_root):
         Mirror of z2pack.plot.wcc source code logic, but returns formatted data.
         """
         return {
-            "k": [round(val, 2) for val in surface_result.t],
+            "k": [round(val, 8) for val in surface_result.t],
             "gaps": [round(float(g % 1), 4) for g in surface_result.gap_pos],
             "wcc": [
                 [round(float(x % 1), 4) for x in line.wcc]

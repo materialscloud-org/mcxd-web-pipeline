@@ -104,6 +104,19 @@ for formula, mapping_info in formula_to_id_mapping.items():
     else:
         print(f"Skipping {formula}: Not found in original data.")
 
+# Add strained band gap values for selected materials
+strain_percent = {
+    "mc2d-206": 3,  # MoTe2
+    "mc2d-255": 2.0,  # WTe2
+    "mc2d-70": 1,  # ZrBr
+    "mc2d-126": 3,  # ZrCl
+}
+
+for mc2d_id, value in strain_percent.items():
+    if mc2d_id in final_output:
+        final_output[mc2d_id]["strain_percent"] = value
+
+
 # 4. Save the restructured JSON
 with open(output_path, "w") as f:
     json.dump(final_output, f, indent=2)
