@@ -14,9 +14,9 @@ def run_step(script, env):
 
 
 @click.command()
-@click.option("--r-cut", default=3.0, type=float, show_default=True)
-@click.option("--n-max", default=2, type=int, show_default=True)
-@click.option("--l-max", default=1, type=int, show_default=True)
+@click.option("--r-cut", default=7.0, type=float, show_default=True)
+@click.option("--n-max", default=4, type=int, show_default=True)
+@click.option("--l-max", default=2, type=int, show_default=True)
 def run_pipeline(r_cut, n_max, l_max):
     """Run full similarity pipeline."""
 
@@ -36,7 +36,7 @@ def run_pipeline(r_cut, n_max, l_max):
     run_step("calculate_similarity.py", env)
     run_step("prepare_final_json.py", env)
 
-    click.echo("\n✅ Pipeline complete")
+    click.echo("\nPipeline complete")
 
 
 if __name__ == "__main__":

@@ -240,6 +240,34 @@ class McMongoInjector:
                 recheck=recheck,
             )
 
+    def populate_structure_similarity(self):
+        rootpath = get_data_folder(mcxd_type="mc3d")
+        json_sim_path = rootpath / "structure_similarity/similarity.json"
+
+        with open(json_sim_path) as f:
+            merged_data = json.load(f)  # list of {"id": ..., "m": ..., "n": [...]}
+
+        sim_collection = self.db["structure-similarity"]
+
+        # Group entries by structure ID
+        grouped = defaultdict(dict)
+        for entry in merged_data:
+            struct_id = entry["id"]
+            method = entry["m"]
+            neighbors = entry["n"]
+            grouped[struct_id][method] = neighbors
+
+        # Build documents for MongoDB
+        docs = []
+        for struct_id, methods_dict in grouped.items():
+            doc = {"_id": struct_id}
+            doc.update(methods_dict)  # keys are method names, values are neighbor lists
+            docs.append(doc)
+
+        # Insert/update in MongoDB
+        for doc in docs:
+            sim_collection.replace_one({"_id": doc["_id"]}, doc, upsert=True)
+
     def populate_supercon_phonon_vis(self, regen_existing=False):
         """Populate the XRD collections."""
 

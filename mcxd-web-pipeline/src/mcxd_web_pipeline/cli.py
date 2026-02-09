@@ -59,6 +59,15 @@ def mc3d_run_xrd(method, recheck):
     mmi.populate_dataset_index()
 
 
+@mc3d.command("run-structure-sim")
+def mc3d_run_structure_sim():
+    """
+    Structure similarity -
+    """
+    mmi = McMongoInjector(mcxd_type="mc3d")
+    mmi.populate_structure_similarity()
+
+
 @mc3d.command("run-supercon-phonon-vis")
 @click.option(
     "--regen",

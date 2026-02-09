@@ -17,15 +17,13 @@ SOAP_DIR = os.path.join(SCRIPT_DIR, "..", "soap")
 
 os.makedirs(SOAP_DIR, exist_ok=True)
 
-R_CUT = float(os.getenv("R_CUT", 3))
-N_MAX = int(os.getenv("N_MAX", 2))
-L_MAX = int(os.getenv("L_MAX", 1))
+R_CUT = float(os.getenv("R_CUT", 7))
+N_MAX = int(os.getenv("N_MAX", 4))
+L_MAX = int(os.getenv("L_MAX", 2))
 
-SOAP_VECTORS_FILE = os.path.join(SOAP_DIR, f"soap_vectors_{R_CUT}_{N_MAX}_{L_MAX}.npy")
-
-print(SOAP_VECTORS_FILE)
-
-VALID_FILES_FILE = os.path.join(SOAP_DIR, f"valid_files_{R_CUT}_{N_MAX}_{L_MAX}.json")
+PARAM_TAG = f"{R_CUT}_{N_MAX}_{L_MAX}"
+SOAP_VECTORS_FILE = os.path.join(SOAP_DIR, f"soap_vectors_{PARAM_TAG}.npy")
+VALID_FILES_FILE = os.path.join(SOAP_DIR, f"valid_files_{PARAM_TAG}.json")
 
 # ---- Skip if outputs already exist ----
 if os.path.exists(SOAP_VECTORS_FILE) and os.path.exists(VALID_FILES_FILE):

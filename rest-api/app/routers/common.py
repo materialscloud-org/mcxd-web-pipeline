@@ -33,6 +33,11 @@ def build_mc_router(
         """Return all available datasets/contributions for a MC-ID"""
         return return_one_mongodb_entry(db_name, "dataset-index", entry_id)
 
+    @router.get("/structure-similarity/{entry_id}")
+    async def similarstructures(entry_id: str):
+        """Return all available datasets/contributions for a MC-ID"""
+        return return_one_mongodb_entry(db_name, "structure-similarity", entry_id)
+
     @router.get("/info")
     async def mc_info():
         """Return general information about the mc database"""
