@@ -35,23 +35,20 @@ print("-" * 50)
 X = np.load(SOAP_VECTORS_PATH, mmap_mode="r")  # memory-mapped to reduce RAM
 with open(VALID_FILES_PATH) as f:
     valid_files = json.load(f)
-
-valid_files = valid_files
 print(f"Loaded {X.shape[0]} vectors")
 
+nn = NearestNeighbors(
+    n_neighbors=N_NEIGHBORS + 1, metric="cosine", algorithm="brute", n_jobs=-1
+)
+nn.fit(X)
+
+chunk_range = range(0, X.shape[0], CHUNK_SIZE)
 # Process in chunks
-for start in range(0, X.shape[0], CHUNK_SIZE):
-    print(f"Processing chunk {start} -> {min(start + CHUNK_SIZE, X.shape[0])}")
+for start in tqdm(chunk_range, desc="Processing chunks"):
     end = min(start + CHUNK_SIZE, X.shape[0])
     X_chunk = X[start:end]
 
-    # Fit on full dataset
-    nn = NearestNeighbors(
-        n_neighbors=N_NEIGHBORS + 1, metric="cosine", algorithm="brute", n_jobs=-1
-    )
-    nn.fit(X)
     distances, indices = nn.kneighbors(X_chunk)
-
     similarities = 1.0 - distances
 
     for i_local, i_global in enumerate(range(start, end)):
@@ -61,6 +58,9 @@ for start in range(0, X.shape[0], CHUNK_SIZE):
         for j in range(1, N_NEIGHBORS + 1):  # skip self
             neighbor_idx = indices[i_local, j]
             sim = float(similarities[i_local, j])
+
+            if sim < SIMILARITY_THRESHOLD:
+                continue
 
             neighbor_file = os.path.basename(valid_files[neighbor_idx])
             neighbors.append({"filename": neighbor_file, "similarity": sim})
