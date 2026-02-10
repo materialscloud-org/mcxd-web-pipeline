@@ -60,12 +60,28 @@ def mc3d_run_xrd(method, recheck):
 
 
 @mc3d.command("run-structure-sim")
-def mc3d_run_structure_sim():
+@click.option(
+    "--max-neighbors",
+    type=int,
+    default=None,
+    help="Maximum number of neighbors to store per method.",
+)
+@click.option(
+    "--min-similarity",
+    type=float,
+    default=None,
+    help="Minimum similarity threshold for neighbors.",
+)
+def mc3d_run_structure_sim(max_neighbors, min_similarity):
     """
-    Structure similarity -
+    Populate MongoDB structure similarity collection.
     """
+
     mmi = McMongoInjector(mcxd_type="mc3d")
-    mmi.populate_structure_similarity()
+    mmi.populate_structure_similarity(
+        max_neighbors=max_neighbors,
+        min_similarity=min_similarity,
+    )
 
 
 @mc3d.command("run-supercon-phonon-vis")

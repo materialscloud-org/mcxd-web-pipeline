@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 
-N_NEIGHBORS = 100
+N_NEIGHBORS = 1000
 CHUNK_SIZE = 10000
 SIMILARITY_THRESHOLD = 0.001
 

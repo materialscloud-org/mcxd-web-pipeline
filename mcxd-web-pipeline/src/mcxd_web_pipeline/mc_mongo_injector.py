@@ -240,28 +240,43 @@ class McMongoInjector:
                 recheck=recheck,
             )
 
-    def populate_structure_similarity(self):
+    def populate_structure_similarity(
+        self,
+        max_neighbors=None,
+        min_similarity=None,
+    ):
         rootpath = get_data_folder(mcxd_type="mc3d")
         json_sim_path = rootpath / "structure_similarity/similarity.json"
 
         with open(json_sim_path) as f:
-            merged_data = json.load(f)  # list of {"id": ..., "m": ..., "n": [...]}
+            merged_data = json.load(f)
 
         sim_collection = self.db["structure-similarity"]
 
         # Group entries by structure ID
         grouped = defaultdict(dict)
+
         for entry in merged_data:
             struct_id = entry["id"]
             method = entry["m"]
             neighbors = entry["n"]
-            grouped[struct_id][method] = neighbors
+
+            # Filter by max_n / min_s
+            filtered_neighbors = neighbors
+            if min_similarity is not None:
+                filtered_neighbors = [
+                    n for n in filtered_neighbors if n.get("s", 0) >= min_similarity
+                ]
+            if max_neighbors is not None:
+                filtered_neighbors = filtered_neighbors[:max_neighbors]
+
+            grouped[struct_id][method] = filtered_neighbors
 
         # Build documents for MongoDB
         docs = []
         for struct_id, methods_dict in grouped.items():
             doc = {"_id": struct_id}
-            doc.update(methods_dict)  # keys are method names, values are neighbor lists
+            doc.update(methods_dict)
             docs.append(doc)
 
         # Insert/update in MongoDB
