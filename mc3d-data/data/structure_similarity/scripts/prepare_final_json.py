@@ -5,11 +5,11 @@ from tqdm import tqdm
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-R_CUT = float(os.getenv("R_CUT", 3.0))
-N_MAX = int(os.getenv("N_MAX", 2))
-L_MAX = int(os.getenv("L_MAX", 1))
+R_CUT = float(os.getenv("R_CUT", 7.0))
+N_MAX = int(os.getenv("N_MAX", 4))
+L_MAX = int(os.getenv("L_MAX", 2))
 
-KEEP_VALUE = 25  # number of similar structures to keep.
+KEEP_VALUE = 200  # number of similar structures to keep.
 
 PARAM_TAG = f"{R_CUT}_{N_MAX}_{L_MAX}"
 

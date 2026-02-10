@@ -36,7 +36,10 @@ def run_pipeline(r_cut, n_max, l_max):
     run_step("calculate_similarity.py", env)
     run_step("prepare_final_json.py", env)
 
-    click.echo("\nPipeline complete")
+    click.echo("\nData pipeline complete")
+    click.echo("\n Generating verification plots")
+    run_step("verification.py", env)
+    run_step("plot_verification.py")
 
 
 if __name__ == "__main__":

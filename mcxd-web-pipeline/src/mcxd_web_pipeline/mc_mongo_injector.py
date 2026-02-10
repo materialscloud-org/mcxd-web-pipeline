@@ -270,6 +270,11 @@ class McMongoInjector:
             if max_neighbors is not None:
                 filtered_neighbors = filtered_neighbors[:max_neighbors]
 
+            # Round similarity to 4 digits
+            filtered_neighbors = [
+                {**n, "s": round(n.get("s", 0), 4)} for n in filtered_neighbors
+            ]
+
             grouped[struct_id][method] = filtered_neighbors
 
         # Build documents for MongoDB

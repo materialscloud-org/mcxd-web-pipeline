@@ -55,7 +55,7 @@ for start in tqdm(chunk_range, desc="Processing chunks"):
         fname = valid_files[i_global]
         neighbors = []
 
-        for j in range(1, N_NEIGHBORS + 1):  # skip self
+        for j in range(N_NEIGHBORS + 1):
             neighbor_idx = indices[i_local, j]
             sim = float(similarities[i_local, j])
 
