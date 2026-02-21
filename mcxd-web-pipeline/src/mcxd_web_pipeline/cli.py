@@ -4,6 +4,7 @@ import click
 
 from mcxd_web_pipeline.mc2d.phonon_vis import populate_mc2d_phonon_vis
 from mcxd_web_pipeline.mc3d.pbesol_v1 import fermisurf
+from mcxd_web_pipeline.mc3d.pbesol_v1 import wannierisation
 from mcxd_web_pipeline.mc_mongo_injector import McMongoInjector
 from mcxd_web_pipeline.s3_utils import MongoS3Uploader
 
@@ -81,6 +82,13 @@ def mc3d_run_fermisurf_bxsf():
     """Convert and upload all PBESOL v1 fermisurf BXSF files to the dev S3 path."""
     # We no longer pass a flag; it is hardcoded to dev logic inside
     fermisurf.convert_and_upload_all()
+
+
+@mc3d.command("run-wannier")
+def mc3d_run_wannier():
+    """Convert and upload all PBESOL v1 wannier cube files to the dev S3 path."""
+    # We no longer pass a flag; it is hardcoded to dev logic inside
+    wannierisation.convert_and_upload_all()
 
 
 @mc3d.command("upload-s3")
