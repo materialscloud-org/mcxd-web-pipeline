@@ -5,7 +5,7 @@
       "data_path": "inversion_strength",
       "data_label": "topo_istr",
       "name": "[ℤ₂ topology] Inversion strength",
-      "type": "float",
+      "type": "integer",
       "unit": "meV",
       "description": "The inversion strength"
     },
@@ -14,7 +14,7 @@
       "data_path": "soc_band_gap",
       "data_label": "topo_soc_band_gap",
       "name": "[ℤ₂ topology] SOC band gap",
-      "type": "float",
+      "type": "integer",
       "unit": "meV",
       "description": "The spin-orbit coupling band gap"
     }
