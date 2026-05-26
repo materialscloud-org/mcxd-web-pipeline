@@ -7,6 +7,8 @@ from pathlib import Path
 
 import py7zr
 from tqdm import tqdm
+import re
+
 
 from mcxd_web_pipeline.config import CONFIG
 from mcxd_web_pipeline.mc_mongo_injector import McMongoInjector
@@ -21,6 +23,16 @@ WANN_ARCHIVE_NAME = "wan_tb_cube.7z"
 extension = ".cube"
 
 WANNIER_BASE_COLL = "pbesol-v1_wannierisation_base"
+
+
+def clean_whitespace(data: bytes) -> bytes:
+    text = data.decode("utf-8", errors="ignore")
+    # remove leading/trailing whitespace per line
+    lines = [line.strip() for line in text.splitlines()]
+    # collapse multiple spaces/tabs inside lines
+    lines = [re.sub(r"[ \t]+", " ", line) for line in lines]
+
+    return "\n".join(lines).encode("utf-8")
 
 
 def get_path_from_uuid(uuid, wannier_root_path):
@@ -50,16 +62,27 @@ def extract_and_upload_cubes(
         with py7zr.SevenZipFile(path, mode="r") as z:
             z.extractall(path=tmpdir)
 
-        # Find all .cube files recursively
-        cube_files = list(tmpdir.rglob("*.cube"))
-        if not cube_files:
+        all_files = [p for p in tmpdir.rglob("*") if p.is_file()]
+        cube_files = [p for p in all_files if p.suffix.lower() == ".cube"]
+        hamiltonian_files = [p for p in all_files if p.suffix.lower() == ".dat"]
+
+        important_files = cube_files + hamiltonian_files
+
+        if not important_files:
             raise FileNotFoundError("No .cube files found in the archive")
 
-        for cube_path in cube_files:
+        for file_path in important_files:
+            print(file_path)
             # Compress with Brotli
-            br_path = cube_path.with_suffix(cube_path.suffix + ".br")
-            with cube_path.open("rb") as f_in:
-                compressed_data = brotli.compress(f_in.read(), quality=compressionlevel)
+            br_path = file_path.with_suffix(file_path.suffix + ".br")
+            with file_path.open("rb") as f_in:
+                raw = f_in.read()
+                cleaned = clean_whitespace(raw)
+
+                print(f"Original size: {len(raw)} bytes")
+                print(f"Cleaned size:  {len(cleaned)} bytes")
+                print(f"Saved:         {len(raw) - len(cleaned)} bytes")
+                compressed_data = brotli.compress(cleaned, quality=compressionlevel)
             with br_path.open("wb") as f_out:
                 f_out.write(compressed_data)
 
