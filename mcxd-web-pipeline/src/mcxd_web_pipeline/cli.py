@@ -7,6 +7,8 @@ from mcxd_web_pipeline.mc3d.pbesol_v1 import fermisurf
 from mcxd_web_pipeline.mc_mongo_injector import McMongoInjector
 from mcxd_web_pipeline.s3_utils import MongoS3Uploader
 
+from mcxd_web_pipeline.mc3d import xrd
+
 
 @click.group()
 def cli():
@@ -44,19 +46,23 @@ def mc3d_run_base(method):
 @mc3d.command("run-xrd")
 @click.argument("method", type=str)
 @click.option(
-    "--recheck",
-    is_flag=True,
-    help="Re-check that each individual XRD is calculated.",
+    "--skip/--no-skip",
+    default=True,
+    help="Skip results that already exist on S3. Default true",
 )
-def mc3d_run_xrd(method, recheck):
+def mc3d_run_xrd(method, skip):
     """
     X-ray diffraction. One db can take 10h+. Make sure corresponding base is populated.
 
     METHOD - sub-db (e.g. 'pbesol-v2', 'all').
     """
-    mmi = McMongoInjector(mcxd_type="mc3d")
-    mmi.populate_xrd(method, recheck)
-    mmi.populate_dataset_index()
+
+    method = [method]
+    if method == ["all"]:
+        method = ["pbe-v1", "pbesol-v1", "pbesol-v2"]
+
+    for i in method:
+        xrd.populate_xrd_s3(i, skip=skip)
 
 
 @mc3d.command("run-supercon-phonon-vis")

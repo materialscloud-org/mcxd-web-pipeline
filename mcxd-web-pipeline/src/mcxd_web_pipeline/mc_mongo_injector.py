@@ -20,7 +20,6 @@ from mcxd_web_pipeline.config import CONFIG, REPO_ROOT
 from mcxd_web_pipeline.mc3d.pbesol_v1.supercon.phonon_vis import (
     populate_supercon_phonon_vis,
 )
-from mcxd_web_pipeline.mc3d.xrd import populate_xrd_parallel
 
 
 def get_data_folder(mcxd_type: str) -> Path:
@@ -222,23 +221,6 @@ class McMongoInjector:
             self._populate_overview_table(method)
 
     #### Custom data injections ####
-
-    def populate_xrd(self, method: str = "all", recheck: bool = False):
-        """Populate the XRD collections."""
-        if method == "all":
-            methods = list(self.aiida_profiles.keys())
-        else:
-            methods = [method]
-
-        for m in methods:
-            populate_xrd_parallel(
-                self.mongo_uri,
-                self.mongo_db_name,
-                self.aiida_profiles[m],
-                f"{m}_core_base",
-                f"{m}_core_xrd",
-                recheck=recheck,
-            )
 
     def populate_supercon_phonon_vis(self, regen_existing=False):
         """Populate the XRD collections."""

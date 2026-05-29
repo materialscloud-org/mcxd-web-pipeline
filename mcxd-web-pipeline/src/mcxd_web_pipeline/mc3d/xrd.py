@@ -1,45 +1,29 @@
-"""
-Tools to calculate powdered XRD with pymatgen.
-
-Adapted from https://github.com/materialscloud-org/xrd-simulation by Nataliya Paulish.
-"""
-
-import os
-from concurrent.futures import ProcessPoolExecutor, as_completed
-
-import aiida
-import numpy as np
-import pymatgen.analysis.diffraction.xrd as xrd
-import tqdm
+from aiida import load_profile
 from aiida import orm
-from aiida.common.exceptions import ProfileConfigurationError
-from pymongo import MongoClient
 
-# Run on multiple cores, but keep some free:
-NUM_CORES = max(1, os.cpu_count() - 2)
+import numpy as np
+from tqdm import tqdm
 
-# Process-local MongoDB singleton (each worker process gets its own instance)
-_MONGO_CLIENT = None
-_MONGO_DB = None
+import pymatgen.analysis.diffraction.xrd as xrd
+import json
+import brotli
 
+import tempfile
 
-def get_mongo_db(mongo_uri, mongo_db_name):
-    """
-    Lazily create and cache a MongoClient per process and return the DB handle.
-    """
-    global _MONGO_CLIENT, _MONGO_DB
-    if _MONGO_DB is None:
-        _MONGO_CLIENT = MongoClient(
-            mongo_uri,
-            maxPoolSize=10,
-            connectTimeoutMS=20000,
-            socketTimeoutMS=60000,
-        )
-        _MONGO_DB = _MONGO_CLIENT[mongo_db_name]
-    return _MONGO_DB
+from mcxd_web_pipeline.config import CONFIG
+from pathlib import Path
+
+from mcxd_web_pipeline.s3_utils import upload_file_to_s3, get_s3_client
+from mcxd_web_pipeline.mc_mongo_injector import McMongoInjector
+
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import os
 
 
-def calc_pattern(pmg_struct, wavelength="CuKa", two_th_range=(0, 90)):
+NUM_CORES = max(1, os.cpu_count() - 4)
+
+
+def calc_pattern_test(pmg_struct, wavelength="CuKa", two_th_range=(0, 90)):
     """
     Calculate powder xray diffraction pattern for a given structure using pymatgen XRDCalculator.
     """
@@ -48,125 +32,131 @@ def calc_pattern(pmg_struct, wavelength="CuKa", two_th_range=(0, 90)):
     return pattern
 
 
-def run_xrd_simulation(
-    pmg_struct,
-    wavelength_list=("CuKa", "MoKa", "CrKa", "FeKa", "CoKa", "AgKa"),
-    two_theta_range=(0, 90),
-    precision=4,
+def run_and_upload_one_xrd(
+    mc3d_id,
+    structure_uuid,
+    s3_prefix,
+    wavelengths=("CuKa", "MoKa", "CrKa", "FeKa", "CoKa", "AgKa"),
+    compressionlevel: int = 11,
 ):
-    """
-    Calculate XRDPatterns for a given pymatgen structure and wavelength list.
-
-    Returns a dictionary with wavelength, angular range, peak positions, intensities,
-    and hkl indices. Peak positions and intensities are rounded according to `precision`.
-    """
-
-    res = {}
-
-    for wavelength in wavelength_list:
-        pattern = calc_pattern(pmg_struct, wavelength, two_theta_range)
-        angles = np.around(pattern.x, decimals=precision).tolist()
-        intensities = np.around(pattern.y, decimals=precision).tolist()
-        hkls = []
-        for reflection in pattern.hkls:
-            hkls.append(reflection[0]["hkl"])
-
-        res[wavelength] = {
-            "angular_range": list(two_theta_range),
-            "peaks_positions": angles,
-            "intensities": intensities,
-            "hkls": hkls,
-        }
-    return res
-
-
-def run_and_inject_one_xrd(mongo_uri, mongo_db_name, xrd_coll_name, entry):
-    """
-    Function to run a single XRD and inject into MongoDB.
-    Intended to be called inside a worker process.
-    """
-    mongo_db = get_mongo_db(mongo_uri, mongo_db_name)
-
-    mc_id = entry["_id"]
-
-    if mongo_db[xrd_coll_name].find_one({"_id": mc_id}) is not None:
-        return
-
-    structure_uuid = entry["general"]["structure_uuid"]
     sd_node = orm.load_node(structure_uuid)
     pmg_structure = sd_node.get_pymatgen_structure()
 
-    xrd_data = run_xrd_simulation(pmg_structure)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
 
-    doc = {"_id": mc_id, "data": xrd_data}
+        files = []
 
-    mongo_db[xrd_coll_name].update_one(
-        {"_id": mc_id},
-        {"$set": doc},
-        upsert=True,
-    )
+        # ---- STEP 1: compute + write locally ----
+        for wavelength in wavelengths:
+            pattern = calc_pattern_test(pmg_structure, wavelength)
 
-
-def populate_xrd_parallel(
-    mongo_uri,
-    mongo_db_name,
-    aiida_profile,
-    base_coll_name,
-    xrd_coll_name,
-    recheck=False,
-):
-    """
-    Populate the XRD collection for a single subdb.
-    """
-    try:
-        aiida.load_profile(aiida_profile, allow_switch=True)
-    except ProfileConfigurationError:
-        print(f"{aiida_profile} profile not found, skipping.")
-        return
-
-    mdb = MongoClient(mongo_uri)[mongo_db_name]
-
-    if xrd_coll_name in mdb.list_collection_names() and not recheck:
-        print(f"Collection {xrd_coll_name} exists, skipping data injection.")
-        return
-
-    print(f"Injecting {xrd_coll_name}")
-
-    base_coll = mdb[base_coll_name]
-
-    # Only fetch what you actually use: _id and general.structure_uuid
-    entries = list(
-        base_coll.find(
-            {},
-            {
-                "_id": 1,
-                "general.structure_uuid": 1,
-            },
-        )
-    )
-
-    if not entries:
-        print("No entries found to process.")
-        return
-
-    # Initialize the tqdm progress bar
-    with tqdm.tqdm(total=len(entries), desc="Processing entries") as pbar:
-        with ProcessPoolExecutor(max_workers=NUM_CORES) as executor:
-            futures = {
-                executor.submit(
-                    run_and_inject_one_xrd,
-                    mongo_uri,
-                    mongo_db_name,
-                    xrd_coll_name,
-                    entry,
-                ): entry
-                for entry in entries
+            xrd_data = {
+                "wavelength": wavelength,
+                "angular_range": (0, 90),
+                "peaks_positions": np.around(pattern.x, 4).tolist(),
+                "intensities": np.around(pattern.y, 4).tolist(),
+                "hkls": [h[0]["hkl"] for h in pattern.hkls],
             }
-            for future in as_completed(futures):
-                try:
-                    future.result()
-                except Exception as e:
-                    mc_id = futures[future].get("_id", "UNKNOWN_ID")
-                    print(f"An error occurred for _id={mc_id}: {e}")
-                finally:
-                    pbar.update(1)
+
+            raw = json.dumps(
+                xrd_data, separators=(",", ":"), ensure_ascii=False
+            ).encode("utf-8")
+            compressed = brotli.compress(raw, quality=compressionlevel)
+
+            out_file = tmpdir / f"{wavelength}.json.br"
+            out_file.write_bytes(compressed)
+
+            files.append((wavelength, out_file))
+
+        # ---- STEP 2: upload ----
+        for wavelength, file_path in files:
+            s3_key = f"{s3_prefix}/{mc3d_id}/{wavelength}.json.br"
+
+            upload_file_to_s3(
+                file_path,
+                CONFIG["s3"]["public_bucket"],
+                s3_key,
+                {
+                    "ContentType": "application/json",
+                    "ContentEncoding": "br",
+                },
+            )
+
+
+def s3_object_exists(bucket, key):
+    client = get_s3_client()
+
+    try:
+        client.head_object(
+            Bucket=bucket,
+            Key=key,
+        )
+        return True
+
+    except Exception as e:
+        error_code = e.response["Error"]["Code"]
+
+        if error_code in ("404", "NoSuchKey"):
+            return False
+
+        raise
+
+
+def _worker(entry, s3_prefix, skip=True):
+    mc3d_id = entry["_id"]
+    structure_uuid = entry["uuid"]
+
+    sentinel_key = f"{s3_prefix}/{mc3d_id}/AgKa.json.br"
+
+    if skip == True:
+        if s3_object_exists(
+            CONFIG["s3"]["public_bucket"],
+            sentinel_key,
+        ):
+            return
+
+    run_and_upload_one_xrd(
+        mc3d_id=mc3d_id,
+        structure_uuid=structure_uuid,
+        s3_prefix=s3_prefix,
+    )
+
+    return mc3d_id
+
+
+def convert_and_upload_all(database, skip=True):
+    """
+    Parallelized XRD generation + S3 upload.
+    """
+
+    mmi = McMongoInjector(mcxd_type="mc3d")
+    BASE_COLL = f"{database}_core_structure-uuids"
+    base_coll = mmi.db[BASE_COLL]
+
+    entries = list(base_coll.find({}, {"_id": 1, "uuid": 1}))
+
+    s3_prefix = f"mc3d/{database}_xrd/dev"
+
+    print(f"Found {len(entries)} entries")
+    print(f"Uploading to S3: {s3_prefix}")
+    print(f"Using {NUM_CORES} processes")
+
+    with ProcessPoolExecutor(max_workers=NUM_CORES) as executor:
+        futures = {
+            executor.submit(_worker, entry, s3_prefix, skip=skip): entry["_id"]
+            for entry in entries
+        }
+
+        for future in tqdm(as_completed(futures), total=len(futures)):
+            mc3d_id = futures[future]
+
+            try:
+                future.result()
+            except Exception as e:
+                print(f"[FAIL] {mc3d_id}: {e}")
+
+
+def populate_xrd_s3(method, skip):
+    load_profile(f"mc3d-{method}")
+    convert_and_upload_all(method, skip)
