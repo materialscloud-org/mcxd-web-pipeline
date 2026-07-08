@@ -218,6 +218,7 @@ def kbar_to_gpa(modulus):
 def load_thermo_pw(
     profile,
     label,
+    pp,
     log=print,
     details={},
 ):
@@ -279,25 +280,25 @@ def load_thermo_pw(
                 count_skipped += 1
                 continue
 
-            details_entry = {mc3d_id: {"elastic": {"fd": {}}}}
-            details_entry[mc3d_id]["elastic"]["fd"]["structure_uuid"] = structure.uuid
+            details_entry = {mc3d_id: {"elastic": {pp: {"fd": {}}}}}
+            details_entry[mc3d_id]["elastic"][pp]["fd"]["structure_uuid"] = structure.uuid
             elastic_constants = workchain_node.outputs.elastic_constants.get_array("elastic_constants")
             if parser:
                 output_parameters = parser(workchain_node.outputs.retrieved.get_object_content('aiida.out'))
             else:
                 output_parameters = workchain_node.outputs.output_parameters.get_dict()
             try:
-                details_entry[mc3d_id]["elastic"]["fd"]["elastic_constants"] = (elastic_constants / 10).tolist()
-                details_entry[mc3d_id]["elastic"]["fd"]["voigt_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['voigt']))
-                details_entry[mc3d_id]["elastic"]["fd"]["reuss_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['reuss']))
-                details_entry[mc3d_id]["elastic"]["fd"]["VRH_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['vrh']))
+                details_entry[mc3d_id]["elastic"][pp]["fd"]["elastic_constants"] = (elastic_constants / 10).tolist()
+                details_entry[mc3d_id]["elastic"][pp]["fd"]["voigt_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['voigt']))
+                details_entry[mc3d_id]["elastic"][pp]["fd"]["reuss_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['reuss']))
+                details_entry[mc3d_id]["elastic"][pp]["fd"]["VRH_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['vrh']))
                 for average in ['voigt_average', 'reuss_average', 'VRH_average']:
-                    bulk_modulus = details_entry[mc3d_id]["elastic"]["fd"][average]["bulk_modulus"]
-                    young_modulus = details_entry[mc3d_id]["elastic"]["fd"][average]["young_modulus"]
+                    bulk_modulus = details_entry[mc3d_id]["elastic"][pp]["fd"][average]["bulk_modulus"]
+                    young_modulus = details_entry[mc3d_id]["elastic"][pp]["fd"][average]["young_modulus"]
                     pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / 10 / young_modulus
                     modified_pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / 10 / bulk_modulus
-                    details_entry[mc3d_id]["elastic"]["fd"][average]["pettifor_ratio"] = pettifor_ratio
-                    details_entry[mc3d_id]["elastic"]["fd"][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
+                    details_entry[mc3d_id]["elastic"][pp]["fd"][average]["pettifor_ratio"] = pettifor_ratio
+                    details_entry[mc3d_id]["elastic"][pp]["fd"][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
             except Exception as e:
                 print(f"Error processing {source}[{workchain_node.pk}]: {e}")
                 pass
@@ -314,6 +315,8 @@ def load_thermo_pw(
 def load_matdyn(
     profile,
     label,
+    pp,
+    qdensity="0.5",
     log=print,
     details={},
 ):
@@ -362,21 +365,21 @@ def load_matdyn(
                 count_skipped += 1
                 continue
 
-            details_entry = {mc3d_id: {"elastic": { "born": {}}}}
+            details_entry = {mc3d_id: {"elastic": {pp: {"born": {qdensity: {}}}}}}
             elastic_constants =np.array(workchain_node.outputs.output_elastic_properties.get("elastic_constants"))
-            details_entry[mc3d_id]["elastic"]['born']["elastic_constants"] = elastic_constants.tolist()
-            details_entry[mc3d_id]["elastic"]['born']["voigt_average"] = workchain_node.outputs.output_elastic_properties.get("voigt_average")
-            details_entry[mc3d_id]["elastic"]['born']["reuss_average"] = workchain_node.outputs.output_elastic_properties.get("reuss_average")
-            details_entry[mc3d_id]["elastic"]['born']["VRH_average"] = workchain_node.outputs.output_elastic_properties.get("VRH_average")
+            details_entry[mc3d_id]["elastic"][pp]['born'][qdensity]["elastic_constants"] = elastic_constants.tolist()
+            details_entry[mc3d_id]["elastic"][pp]['born'][qdensity]["voigt_average"] = workchain_node.outputs.output_elastic_properties.get("voigt_average")
+            details_entry[mc3d_id]["elastic"][pp]['born'][qdensity]["reuss_average"] = workchain_node.outputs.output_elastic_properties.get("reuss_average")
+            details_entry[mc3d_id]["elastic"][pp]['born'][qdensity]["VRH_average"] = workchain_node.outputs.output_elastic_properties.get("VRH_average")
             for average in ['voigt_average', 'reuss_average', 'VRH_average']:
-                bulk_modulus = details_entry[mc3d_id]["elastic"]['born'][average]["bulk_modulus"]
-                young_modulus = details_entry[mc3d_id]["elastic"]['born'][average]["young_modulus"]
+                bulk_modulus = details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["bulk_modulus"]
+                young_modulus = details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["young_modulus"]
                 pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / young_modulus
                 modified_pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / bulk_modulus
-                pugh_ratio = 1 / details_entry[mc3d_id]["elastic"]['born'][average]["pugh_ratio"]
-                details_entry[mc3d_id]["elastic"]['born'][average]["pugh_ratio"] = pugh_ratio
-                details_entry[mc3d_id]["elastic"]['born'][average]["pettifor_ratio"] = pettifor_ratio
-                details_entry[mc3d_id]["elastic"]['born'][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
+                pugh_ratio = 1 / details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["pugh_ratio"]
+                details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["pugh_ratio"] = pugh_ratio
+                details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["pettifor_ratio"] = pettifor_ratio
+                details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
             details = update_mapping(details, details_entry)
 
             count_successful += 1
@@ -387,42 +390,111 @@ def load_matdyn(
             count_skipped += 1
             continue
 
+def load_matdyn_from_yaml(
+    path,
+    label,
+    pp,
+    log=print,
+    details={},
+):
+    import os
+    import re
+    
+    filename = os.path.basename(path)
+    match = re.search(r'q([0-9\.]+)\.yaml$', filename)
+    if match:
+        qdensity = match.group(1)
+    else:
+        qdensity = "0.5"
+
+    with open(path, 'r') as f:
+        data = yaml.safe_load(f) or {}
+
+    count_successful = 0
+    count_skipped = 0
+
+    for key, value in data.items():
+        parts = key.split('-', 1)
+        if len(parts) < 2:
+            log(f"SKIPPING: Invalid key format: {key}")
+            count_skipped += 1
+            continue
+
+        extras = {
+            "source_db": parts[0],
+            "source_id": parts[1]
+        }
+
+        mc3d_id = get_mc3d_id_from_extras(extras)
+
+        if not mc3d_id:
+            log(f"SKIPPING: MC3D ID not assigned to {extras}")
+            count_skipped += 1
+            continue
+
+        details_entry = {
+            mc3d_id: {
+                "elastic": {
+                    pp: {
+                        "born": {
+                            qdensity: value
+                        }
+                    }
+                }
+            }
+        }
+        details = update_mapping(details, details_entry)
+        count_successful += 1
+
+    log(f"Successfully loaded {count_successful} entries from {path}. Skipped {count_skipped} entries.")
+    return details
+def aggregate_recursive(source, target):
+    """
+    Recursively traverse the source dictionary and aggregate the "leaf" values to the list in the target dictionary.
+    """
+    for key, value in source.items():
+        if isinstance(value, dict):
+            target_node = target.setdefault(key, {})
+            aggregate_recursive(value, target_node)
+        else:
+            target_list = target.setdefault(key, [])
+            target_list.append(value)
 
 
 def check_base_json(details, log=print):
     statistics = {
-        "elastic": {
-            "born": {
-                "VRH_average": [],
-                "elastic_constants": [],
-                "reuss_average": [],
-                "voigt_average": [],
-            },
-            "fd": {
-                "VRH_average": [],
-                "elastic_constants": [],
-                "reuss_average": [],
-                "structure_uuid": [],
-                "voigt_average": [],
-            },}
+        "elastic": {}
     }
     for detail in details.values():
         aggregate_recursive(detail, statistics)
 
-    for k, v in statistics["elastic"]["born"].items():
-        if isinstance(v, dict):
-            log(f"{k:40s}:")
-            for kk, vv in v.items():
-                log(f"  {kk:38s}: {len(vv):5d}")
-        else:
-            log(f"{k:40s}: {len(v):5d}")
-    for k, v in statistics["elastic"]["fd"].items():
-        if isinstance(v, dict):
-            log(f"{k:40s}:")
-            for kk, vv in v.items():
-                log(f"  {kk:38s}: {len(vv):5d}")
-        else:
-            log(f"{k:40s}: {len(v):5d}")
+    elastic_stats = statistics.get("elastic", {})
+    for pp, pp_stats in elastic_stats.items():
+        log(f"Pseudopotential: {pp}")
+        
+        # 1. Born stats
+        born_stats = pp_stats.get("born", {})
+        for qdensity, q_stats in born_stats.items():
+            log(f"  Born (q-density: {qdensity}):")
+            for k, v in q_stats.items():
+                if isinstance(v, dict):
+                    log(f"    {k:38s}:")
+                    for kk, vv in v.items():
+                        log(f"      {kk:36s}: {len(vv):5d}")
+                else:
+                    log(f"    {k:38s}: {len(v):5d}")
+                    
+        # 2. FD stats
+        fd_stats = pp_stats.get("fd", {})
+        if fd_stats:
+            log(f"  Finite Displacement (FD):")
+            for k, v in fd_stats.items():
+                if isinstance(v, dict):
+                    log(f"    {k:38s}:")
+                    for kk, vv in v.items():
+                        log(f"      {kk:36s}: {len(vv):5d}")
+                else:
+                    log(f"    {k:38s}: {len(v):5d}")
 
 
 def compare(dict1, dict2, sources=None):

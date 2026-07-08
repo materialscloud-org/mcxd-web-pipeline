@@ -9,10 +9,11 @@ import sys
 from pathlib import Path
 
 from aiida.storage.sqlite_zip.backend import SqliteZipBackend
-from mc3d_web_pipeline.utils import dump_canonical_json
+from mcxd_web_pipeline.utils import dump_canonical_json
 from util import (
     load_thermo_pw,
     load_matdyn,
+    check_base_json,
 )
 
 OUTPUT_PATH = Path().resolve().parent
@@ -24,7 +25,7 @@ ARCHIVE_ELASTIC       = "elastic.aiida"
 GROUP_FD_PSEUDODOJO   = "paper/FD/PseudoDojo"
 GROUP_FD_SSSP         = "paper/FD/SSSP"
 GROUP_BORN_PSEUDODOJO = "paper/Born/PseudoDojo"
-
+GROUP_BORN_SSSP       = "paper/Born/SSSP"
 
 def log(msg):
     with open(LOG_DST, "a") as f:
@@ -77,10 +78,9 @@ def main():
     elif args.archive:
         AIIDA_PROFILE_NAME = Path(args.archive) / ARCHIVE_ELASTIC
         archive_profile = SqliteZipBackend.create_profile(AIIDA_PROFILE_NAME)
-        load_thermo_pw(archive_profile, details=details)
-        AIIDA_PROFILE_NAME = Path(args.archive) / ARCHIVE_QE_SCREENING
-        archive_profile = SqliteZipBackend.create_profile(AIIDA_PROFILE_NAME)
-        load_visualize_phonon(archive_profile, details=details)
+        load_thermo_pw(archive_profile, pp = 'PseudoDojo', details=details, label=GROUP_FD_PSEUDODOJO)
+        load_thermo_pw(archive_profile, pp = 'SSSP', details=details, label=GROUP_FD_SSSP)
+        load_matdyn(archive_profile, pp = 'PseudoDojo', qdensity="0.5", details=details, label=GROUP_BORN_PSEUDODOJO)
 
     else:
         print(
@@ -89,9 +89,6 @@ def main():
         )
         parser.print_help()
         sys.exit(1)
-
-    for mc3d_id, detail in details.items():
-        detail["phonons"] = find_finest_qdensity(detail["phonons"])
 
     check_base_json(details)
     # Save the base.json file

@@ -2,3 +2,5 @@
 *.py[cod]
 .vscode
 test.ipynb
+.python-version
+.venv
