@@ -1,0 +1,38 @@
+{
+  "index-columns": [
+    {
+      "label": "bulk_modulus",
+      "data_path": "mechanical.bulk_modulus",
+      "data_label": "bm",
+      "name": "[Mechanical] Bulk modulus",
+      "type": "float",
+      "unit": "GPa",
+      "description": "The bulk modulus."
+    },
+    {
+      "label": "shear_modulus",
+      "data_path": "mechanical.shear_modulus",
+      "data_label": "sm",
+      "name": "[Mechanical] Shear modulus",
+      "type": "float",
+      "unit": "GPa",
+      "description": "The shear modulus."
+    },
+    {
+      "label": "pugh_ratio",
+      "data_path": "mechanical.pugh_ratio",
+      "data_label": "pur",
+      "name": "[Mechanical] Pugh ratio",
+      "type": "float",
+      "description": "The Pugh ratio."
+    },
+    {
+      "label": "pettifor_ratio",
+      "data_path": "mechanical.pettifor_ratio",
+      "data_label": "ptr",
+      "name": "[Mechanical] Pettifor ratio",
+      "type": "float",
+      "description": "The Voigt sound speed."
+    }
+  ]
+}

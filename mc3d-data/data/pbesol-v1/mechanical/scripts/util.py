@@ -1,0 +1,622 @@
+import json
+import re
+import traceback
+from collections.abc import Mapping
+
+from aiida import orm
+import numpy as np
+import yaml
+from adjustText import adjust_text
+from aiida.orm import (
+    ArrayData,
+    BandsData,
+    Bool,
+    Dict,
+    FolderData,
+    Group,
+    List,
+    Node,
+    QueryBuilder,
+    Str,
+    WorkChainNode,
+)
+from mcxd_web_pipeline.utils import IDS_PATH, get_mc3d_id
+from tqdm import tqdm
+
+
+modulus_pattern = {
+    "fd": {
+        "elastic_constants": [],
+        "voigt_average": {},
+        "reuss_average": {},
+        "VRH_average": {},
+    },
+    "q0.3": {
+        "elastic_constants": [],
+        "voigt_average": {},
+        "reuss_average": {},
+        "VRH_average": {},
+    },
+    "q0.5": {
+        "elastic_constants": [],
+        "voigt_average": {},
+        "reuss_average": {},
+        "VRH_average": {},
+    },
+    "q0.7": {
+        "elastic_constants": [],
+        "voigt_average": {},
+        "reuss_average": {},
+        "VRH_average": {},
+    },
+}
+
+def count_groups(log=print):
+    qb = QueryBuilder().append(Group, project=["*"])
+    log(f"{'pk':<10} {'label':<35} {'count':<10}")
+    for group in qb.all(flat=True):
+        log(f"{group.pk:<10} {group.label:<35} {group.count():<10}")
+
+def count_nodes(node_type, process_type):
+    qb = QueryBuilder().append(
+        Node, filters={"node_type": node_type, "process_type": process_type}
+    )
+    return qb.count()
+
+def get_and_count_types():
+    qb = QueryBuilder().append(Node, project=["node_type", "process_type"]).distinct()
+    print(f"{'count':<10} {'node_type':<50} {'process_type':<10}")
+    for [node_type, process_type] in qb.all():
+        if process_type:
+            count = count_nodes(node_type, process_type)
+            print(f"{count:<10} {node_type:<60} {process_type:<60}")
+        else:
+            count = count_nodes(node_type, None)
+            print(f"{count:<10} {node_type:<60} {'None':<60}")
+
+def get_mc3d_versions():
+    with IDS_PATH.open("r") as handle:
+        mc3d_dict = json.load(handle)
+    return set([data["version"] for data in mc3d_dict.values()])
+
+def get_mc3d_id_from_extras(extras, versions=None):
+    mc3d_id = None
+    if not versions:
+        versions = get_mc3d_versions()
+    for version in versions:
+        source = {
+            "id": extras["source_id"],
+            "database": extras["source_db"],
+            "version": version,
+        }
+        mc3d_id = get_mc3d_id(source)
+        if mc3d_id:
+            break
+    return mc3d_id
+
+def update_mapping(original, source):
+    """Update a nested dictionary with another optionally nested dictionary.
+
+    The dictionaries may be plain Mapping objects or `Dict` nodes. If the original dictionary is an instance of `Dict`
+    the returned dictionary will also be wrapped in `Dict`.
+
+    :param original: Mapping object or `Dict` instance
+    :param source: Mapping object or `Dict` instance
+    :return: the original dictionary updated with the source dictionary
+    """
+    return_node = False
+
+    if isinstance(original, Dict):
+        return_node = True
+        original = original.get_dict()
+
+    if isinstance(source, Dict):
+        source = source.get_dict()
+
+    for key, value in source.items():
+        if (
+            key in original
+            and isinstance(value, (Dict, Mapping))
+            and isinstance(original[key], (Dict, Mapping))
+        ):
+            original[key] = update_mapping(original[key], value)
+        else:
+            original[key] = value
+
+    if return_node:
+        original = Dict(original)
+
+    return original
+
+def parse_moduli(stdout):
+    import re
+    results = {
+        'moduli': {},
+        'sound_velocities': {}
+    }
+
+    # Define all properties and their regex in one structure
+    # CORRECTED: All value-capturing groups now use (-?[\d\.]+)
+    definitions = {
+        'voigt': {
+            'block_regex': re.compile(r"Voigt approximation:\s*([\s\S]*?)(?=\n\s*Reuss approximation:|\Z)"),
+            'target_dict': results['moduli'],
+            'properties': {
+                'bulk_modulus_B': re.compile(r"Bulk modulus\s+B\s*=\s*(-?[\d\.]+)"),
+                'young_modulus_E': re.compile(r"Young modulus\s+E\s*=\s*(-?[\d\.]+)"),
+                'shear_modulus_G': re.compile(r"Shear modulus\s+G\s*=\s*(-?[\d\.]+)"),
+                'poisson_ratio_n': re.compile(r"Poisson Ratio\s+n\s*=\s*(-?[\d\.]+)"),
+                'pugh_ratio_r': re.compile(r"Pugh Ratio\s+r\s*=\s*(-?[\d\.]+)")
+            }
+        },
+        'reuss': {
+            'block_regex': re.compile(r"Reuss approximation:\s*([\s\S]*?)(?=\n\s*Voigt-Reuss-Hill average|\Z)"),
+            'target_dict': results['moduli'],
+            'properties': {
+                'bulk_modulus_B': re.compile(r"Bulk modulus\s+B\s*=\s*(-?[\d\.]+)"),
+                'young_modulus_E': re.compile(r"Young modulus\s+E\s*=\s*(-?[\d\.]+)"),
+                'shear_modulus_G': re.compile(r"Shear modulus\s+G\s*=\s*(-?[\d\.]+)"),
+                'poisson_ratio_n': re.compile(r"Poisson Ratio\s+n\s*=\s*(-?[\d\.]+)"),
+                'pugh_ratio_r': re.compile(r"Pugh Ratio\s+r\s*=\s*(-?[\d\.]+)")
+            }
+        },
+        'vrh': {
+            'block_regex': re.compile(r"Voigt-Reuss-Hill average of the two approximations:\s*([\s\S]*?)(?=\n\s*Voigt-Reuss-Hill average; sound velocities:|\Z)"),
+            'target_dict': results['moduli'],
+            'properties': {
+                'bulk_modulus_B': re.compile(r"Bulk modulus\s+B\s*=\s*(-?[\d\.]+)"),
+                'young_modulus_E': re.compile(r"Young modulus\s+E\s*=\s*(-?[\d\.]+)"),
+                'shear_modulus_G': re.compile(r"Shear modulus\s+G\s*=\s*(-?[\d\.]+)"),
+                'longitudinal_modulus_L': re.compile(r"Longitudinal modulus\s+L\s*=\s*(-?[\d\.]+)"),
+                'poisson_ratio_n': re.compile(r"Poisson Ratio\s+n\s*=\s*(-?[\d\.]+)"),
+                'pugh_ratio_r': re.compile(r"Pugh Ratio\s+r\s*=\s*(-?[\d\.]+)")
+            }
+        },
+        'velocities': {
+            'block_regex': re.compile(r"Voigt-Reuss-Hill average; sound velocities:\s*([\s\S]*?)(?=\n\s*\n|\Z)"),
+            'target_dict': results, # The target is the top-level results for velocities
+            'target_key': 'sound_velocities', # The key within the target dict
+            'properties': {
+                'compressional_V_P': re.compile(r"Compressional\s+V_P\s*=\s*(-?[\d\.]+)"),
+                'bulk_V_B': re.compile(r"Bulk\s+V_B\s*=\s*(-?[\d\.]+)"),
+                'shear_V_G': re.compile(r"Shear\s+V_G\s*=\s*(-?[\d\.]+)")
+            }
+        }
+    }
+
+    # A single loop to process everything
+    for block_name, definition in definitions.items():
+        block_match = definition['block_regex'].search(stdout)
+        if not block_match:
+            continue
+
+        block_text = block_match.group(1)
+
+        # Determine where to store the results for this block
+        if 'target_key' in definition:
+            # For sound_velocities, which is a direct key in results
+            storage = definition['target_dict'][definition['target_key']]
+        else:
+            # For moduli, which are nested under their block name (voigt, reuss, etc.)
+            definition['target_dict'][block_name] = {}
+            storage = definition['target_dict'][block_name]
+
+        # Parse properties within the block
+        for prop_name, prop_regex in definition['properties'].items():
+            prop_match = prop_regex.search(block_text)
+            if prop_match:
+                storage[prop_name] = float(prop_match.group(1))
+
+    return results
+
+def kbar_to_gpa(modulus):
+    for key, value in modulus.items():
+        if key in ['bulk_modulus', 'young_modulus', 'shear_modulus']:
+            modulus[key] = value / 10
+    return modulus
+
+def load_thermo_pw(
+    profile,
+    label,
+    log=print,
+    details={},
+):
+    count_successful = 0
+    count_skipped = 0
+
+    from aiida import load_profile, orm
+
+    load_profile(profile, allow_switch=True)
+
+    thermo_pw_to_matdyn = (
+        ('bulk_modulus_B', 'bulk_modulus'),
+        ('shear_modulus_G', 'shear_modulus'),
+        ('young_modulus_E', 'young_modulus'),
+        ('poisson_ratio_n', 'poisson_ratio'),
+        ('pugh_ratio_r', 'pugh_ratio'),
+    )
+    def rename_modulus(modulus):
+        from copy import deepcopy
+        new_modulus = deepcopy(modulus)
+        for old_key, new_key in thermo_pw_to_matdyn:
+            new_modulus[new_key] = new_modulus.pop(old_key)
+        return new_modulus
+        
+    parser = None
+    qb = orm.QueryBuilder()
+    qb.append(
+        orm.Group,
+        filters={'label': label},
+        tag='thermo_pw_grp'
+        ).append(
+        orm.WorkChainNode,
+        with_group='thermo_pw_grp',
+        filters={'attributes.exit_status': 0},
+        tag='thermo_pw_wc'
+    )
+    for [workchain_node] in tqdm(
+            qb.iterall(), total=qb.count()
+        ):
+        structure = workchain_node.inputs.thermo_pw.structure
+        extras = structure.base.extras.all
+        source = f"{extras['source_db']}-{extras['source_id']}"
+        try:
+
+            if "source_db" not in workchain_node.base.extras.all:
+                extras = structure.base.extras.all
+            else:
+                extras = workchain_node.base.extras.all
+
+            if "source_id" not in extras:
+                log(f"SKIPPING: source_id not found in {workchain_node.pk} {extras}")
+                count_skipped += 1
+                continue
+
+            mc3d_id = get_mc3d_id_from_extras(extras)
+
+            if not mc3d_id:
+                log(f"SKIPPING: MC3D ID not assigned to {extras}")
+                count_skipped += 1
+                continue
+
+            details_entry = {mc3d_id: {"elastic": {"fd": {}}}}
+            details_entry[mc3d_id]["elastic"]["fd"]["structure_uuid"] = structure.uuid
+            elastic_constants = workchain_node.outputs.elastic_constants.get_array("elastic_constants")
+            if parser:
+                output_parameters = parser(workchain_node.outputs.retrieved.get_object_content('aiida.out'))
+            else:
+                output_parameters = workchain_node.outputs.output_parameters.get_dict()
+            try:
+                details_entry[mc3d_id]["elastic"]["fd"]["elastic_constants"] = (elastic_constants / 10).tolist()
+                details_entry[mc3d_id]["elastic"]["fd"]["voigt_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['voigt']))
+                details_entry[mc3d_id]["elastic"]["fd"]["reuss_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['reuss']))
+                details_entry[mc3d_id]["elastic"]["fd"]["VRH_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['vrh']))
+                for average in ['voigt_average', 'reuss_average', 'VRH_average']:
+                    bulk_modulus = details_entry[mc3d_id]["elastic"]["fd"][average]["bulk_modulus"]
+                    young_modulus = details_entry[mc3d_id]["elastic"]["fd"][average]["young_modulus"]
+                    pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / 10 / young_modulus
+                    modified_pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / 10 / bulk_modulus
+                    details_entry[mc3d_id]["elastic"]["fd"][average]["pettifor_ratio"] = pettifor_ratio
+                    details_entry[mc3d_id]["elastic"]["fd"][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
+            except Exception as e:
+                print(f"Error processing {source}[{workchain_node.pk}]: {e}")
+                pass
+            details = update_mapping(details, details_entry)
+
+            count_successful += 1
+
+        except Exception as exception:
+            log(f"Found exception for {extras}: {exception}")
+            traceback.print_exc()
+            count_skipped += 1
+            continue
+
+def load_matdyn(
+    profile,
+    label,
+    log=print,
+    details={},
+):
+    count_successful = 0
+    count_skipped = 0
+
+    from aiida import load_profile, orm
+
+    load_profile(profile, allow_switch=True)
+
+    qb = orm.QueryBuilder()
+    qb.append(
+        orm.Group,
+        filters={'label': label},
+        tag='matdyn_grp'
+        ).append(
+        orm.WorkChainNode,
+        with_group='matdyn_grp',
+        filters={
+            'attributes.exit_status': 0,
+            'attributes.process_label': 'MatdynBaseWorkChain'
+        },
+        tag='matdyn_wc'
+    )
+
+
+    for [workchain_node] in tqdm(
+            qb.iterall(), total=qb.count()
+        ):
+        extras =  workchain_node.base.extras.all
+
+        # structure = workchain_node.inputs.thermo_pw.structure
+        # extras = structure.base.extras.all
+        source = f"{extras['source_db']}-{extras['source_id']}"
+        try:
+
+            if "source_id" not in extras:
+                log(f"SKIPPING: source_id not found in {workchain_node.pk} {extras}")
+                count_skipped += 1
+                continue
+
+            mc3d_id = get_mc3d_id_from_extras(extras)
+
+            if not mc3d_id:
+                log(f"SKIPPING: MC3D ID not assigned to {extras}")
+                count_skipped += 1
+                continue
+
+            details_entry = {mc3d_id: {"elastic": { "born": {}}}}
+            elastic_constants =np.array(workchain_node.outputs.output_elastic_properties.get("elastic_constants"))
+            details_entry[mc3d_id]["elastic"]['born']["elastic_constants"] = elastic_constants.tolist()
+            details_entry[mc3d_id]["elastic"]['born']["voigt_average"] = workchain_node.outputs.output_elastic_properties.get("voigt_average")
+            details_entry[mc3d_id]["elastic"]['born']["reuss_average"] = workchain_node.outputs.output_elastic_properties.get("reuss_average")
+            details_entry[mc3d_id]["elastic"]['born']["VRH_average"] = workchain_node.outputs.output_elastic_properties.get("VRH_average")
+            for average in ['voigt_average', 'reuss_average', 'VRH_average']:
+                bulk_modulus = details_entry[mc3d_id]["elastic"]['born'][average]["bulk_modulus"]
+                young_modulus = details_entry[mc3d_id]["elastic"]['born'][average]["young_modulus"]
+                pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / young_modulus
+                modified_pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / bulk_modulus
+                pugh_ratio = 1 / details_entry[mc3d_id]["elastic"]['born'][average]["pugh_ratio"]
+                details_entry[mc3d_id]["elastic"]['born'][average]["pugh_ratio"] = pugh_ratio
+                details_entry[mc3d_id]["elastic"]['born'][average]["pettifor_ratio"] = pettifor_ratio
+                details_entry[mc3d_id]["elastic"]['born'][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
+            details = update_mapping(details, details_entry)
+
+            count_successful += 1
+
+        except Exception as exception:
+            log(f"Found exception for {extras}: {exception}")
+            traceback.print_exc()
+            count_skipped += 1
+            continue
+
+
+
+def check_base_json(details, log=print):
+    statistics = {
+        "elastic": {
+            "born": {
+                "VRH_average": [],
+                "elastic_constants": [],
+                "reuss_average": [],
+                "voigt_average": [],
+            },
+            "fd": {
+                "VRH_average": [],
+                "elastic_constants": [],
+                "reuss_average": [],
+                "structure_uuid": [],
+                "voigt_average": [],
+            },}
+    }
+    for detail in details.values():
+        aggregate_recursive(detail, statistics)
+
+    for k, v in statistics["elastic"]["born"].items():
+        if isinstance(v, dict):
+            log(f"{k:40s}:")
+            for kk, vv in v.items():
+                log(f"  {kk:38s}: {len(vv):5d}")
+        else:
+            log(f"{k:40s}: {len(v):5d}")
+    for k, v in statistics["elastic"]["fd"].items():
+        if isinstance(v, dict):
+            log(f"{k:40s}:")
+            for kk, vv in v.items():
+                log(f"  {kk:38s}: {len(vv):5d}")
+        else:
+            log(f"{k:40s}: {len(v):5d}")
+
+
+def compare(dict1, dict2, sources=None):
+    shared_sources = dict1.keys() & dict2.keys()
+    if sources:
+        shared_sources = set(sources) & shared_sources
+
+    compare_dict = {
+        'sources' : [],
+        'elastic_constants': [],
+        'voigt_average': {
+            'bulk_modulus': [],
+            'shear_modulus': [],
+            'young_modulus': [],
+            'poisson_ratio': [],
+            'pugh_ratio': [],
+            'pettifor_ratio': [],
+            'modified_pettifor_ratio': [],
+        },
+        'reuss_average': {
+            'bulk_modulus': [],
+            'shear_modulus': [],
+            'young_modulus': [],
+            'poisson_ratio': [],
+            'pugh_ratio': [],
+            'pettifor_ratio': [],
+            'modified_pettifor_ratio': [],
+        },
+        'VRH_average': {
+            'bulk_modulus': [],
+            'shear_modulus': [],
+            'young_modulus': [],
+            'poisson_ratio': [],
+            'pugh_ratio': [],
+            'pettifor_ratio': [],
+            'modified_pettifor_ratio': [],
+        },
+    }
+    for source in shared_sources:
+        compare_dict['sources'].append(source)
+        compare_dict['elastic_constants'].append(
+            [dict1[source]['elastic_constants'], dict2[source]['elastic_constants']]
+        )
+        for average in ['voigt_average', 'reuss_average', 'VRH_average']:
+            for modulus in ['bulk_modulus', 'shear_modulus', 'young_modulus', 'poisson_ratio', 'pugh_ratio', 'pettifor_ratio', 'modified_pettifor_ratio']:
+                try:
+                    if modulus not in compare_dict[average]:
+                        continue
+
+                    compare_dict[average][modulus].append(
+                        [dict1[source][average][modulus], dict2[source][average][modulus]]
+                        )
+                except Exception as e:
+                    print(f"Error processing {source}'s {average} {modulus}: {e}")
+                    pass
+
+            # compare_dict[average]['pettifor_ratio'].append(
+            #     [(dict1[source]['elastic_constants'][0][1] - dict1[source]['elastic_constants'][3][3]) / dict1[source][average]['young_modulus'],
+            #      (dict2[source]['elastic_constants'][0][1] - dict2[source]['elastic_constants'][3][1]) / dict2[source][average]['young_modulus']
+            #      ]
+            # )
+            # compare_dict[average]['modified_pettifor_ratio'].append(
+            #     [(dict1[source]['elastic_constants'][0][1] - dict1[source]['elastic_constants'][3][3]) / dict1[source][average]['bulk_modulus'],
+            #      (dict2[source]['elastic_constants'][0][1] - dict2[source]['elastic_constants'][3][1]) / dict2[source][average]['bulk_modulus']
+            #      ]
+            # )
+    return compare_dict
+
+def converge(dict1, dict2, threshold=0.05):
+    converged = []
+    sources = dict1.keys() & dict2.keys()
+    for source in sources:
+        for average in dict1[source].keys():
+            if average == 'elastic_constants':
+                continue
+            for (modulus, value1), (_, value2) in zip(dict1[source][average].items(), dict2[source][average].items()):
+                if modulus not in ['bulk_modulus', 'shear_modulus', 'young_modulus', 'poisson_ratio', 'pugh_ratio', 'pettifor_ratio', 'modified_pettifor_ratio']:
+                    continue
+                if abs((value1 - value2) / value1) < threshold:
+                    converged.append((source, average, modulus))
+    return converged
+
+def converged_average_modulus(converged, average, modulus):
+    return [
+        source for (source, _average, _modulus) in converged
+        if average == _average and modulus == _modulus
+    ]
+
+
+def exclude_sources(dict, sources):
+    filtered_dict = {}
+    for source in dict.keys():
+        if source in sources:
+            filtered_dict[source] = dict[source]
+    return filtered_dict
+
+def get_sources(profile, group_label, check_stability=True):
+    sources = []
+
+    import aiida
+    aiida.load_profile(profile, allow_switch=True)
+
+    qb = orm.QueryBuilder()
+    qb.append(
+        orm.Group,
+        filters={'label': group_label},
+        tag='group'
+        ).append(
+        orm.WorkChainNode,
+        with_group='group',
+    )
+    for workchain in qb.all(flat=True):
+        extras = workchain.base.extras.all
+        if check_stability:
+            is_stable, _ = check_stability_matdyn_base(workchain)
+            if not is_stable:
+                continue
+        sources.append(f"{extras['source_db']}-{extras['source_id']}")
+
+    return sources
+
+def find_max_value_and_path(data):
+    """
+    Traverse a multi-layer dictionary to find the maximum value and its path.
+
+    :param data: The input multi-layer dictionary.
+    :return: A tuple containing (key path list, maximum value), or None if no numeric values are found.
+    """
+    
+    max_value = None
+    max_path = None
+    
+    # Traverse the dictionary   
+    for key, value in data.items():
+        
+        current_path = [key]  # The path segment of the current node
+
+        if isinstance(value, dict):
+            # 1. Recursive case: If the value is a dictionary, continue to explore downwards
+            
+            # Recursively call itself to get the maximum value and path in the subtree
+            recursive_result = find_max_value_and_path(value)
+            
+            if recursive_result is not None:
+                sub_path, sub_value = recursive_result
+                
+                # Combine paths: current key + sub-path
+                full_path = current_path + sub_path
+                
+                # Update the global maximum value
+                if max_value is None or sub_value > max_value:
+                    max_value = sub_value
+                    max_path = full_path
+                    
+        elif isinstance(value, (int, float)):
+            # 2. Basic case: If the value is a number, compare directly
+            
+            if max_value is None or value > max_value:
+                max_value = value
+                max_path = current_path
+
+    # Return the maximum value and path found in the current dictionary
+    if max_path is not None:
+        return (max_path, max_value)
+    else:
+        # If the dictionary does not contain any numeric values (e.g., only empty dictionaries or non-numeric strings)
+        return None
+        
+def check_stability_matdyn_base(
+    workchain: orm.WorkChainNode,
+    tolerance: float = -5.0 # cm^{-1}
+    ) -> tuple[bool, str]:
+
+    """Check if the matdyn.x interpolated phonon band structure is stable."""
+    THZ_TO_CM        = 33.356
+    bands = workchain.outputs.output_phonon_bands.get_bands() * THZ_TO_CM # unit: THz
+    min_freq = np.min(bands)
+    if min_freq < tolerance:
+        return (
+            False,
+            f'The phonon from `matdyn_base` is unstable.\nWith the minimum frequency {min_freq:.2f} cm^{-1}.')
+    else:
+        return (True, f'The phonon from `matdyn_base` is stable, with the minimum frequency {min_freq:.2f} cm^{-1}.')
+
+def compare_two_keys(dict, key1, key2):
+    values = {
+        'voigt_average': [],
+        'reuss_average': [],
+        'VRH_average': [],
+    }
+    for source in dict.keys():
+        for average in ['voigt_average', 'reuss_average', 'VRH_average']:
+            try:
+                values[average].append([dict[source][average][key1], dict[source][average][key2]])
+            except:
+                print('Error in source: ', source)
+    return values

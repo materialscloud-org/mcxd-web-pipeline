@@ -9,7 +9,7 @@ from aiida_quantumespresso.utils.validation.trajectory import (
 
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent.parent
 
-IDS_PATH = PACKAGE_ROOT.parent / "ids" / "mc3d-ids.json"
+IDS_PATH = PACKAGE_ROOT.parent / "mc3d-data" / "ids" / "mc3d-ids.json"
 
 # Define load IDs when this module is imported:
 with IDS_PATH.open("r") as handle:
