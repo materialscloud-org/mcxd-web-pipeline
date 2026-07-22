@@ -13,6 +13,7 @@ from mcxd_web_pipeline.utils import dump_canonical_json
 from util import (
     load_thermo_pw,
     load_matdyn,
+    load_matdyn_from_yaml,
     check_base_json,
 )
 
@@ -78,9 +79,12 @@ def main():
     elif args.archive:
         AIIDA_PROFILE_NAME = Path(args.archive) / ARCHIVE_ELASTIC
         archive_profile = SqliteZipBackend.create_profile(AIIDA_PROFILE_NAME)
-        load_thermo_pw(archive_profile, pp = 'PseudoDojo', details=details, label=GROUP_FD_PSEUDODOJO)
-        load_thermo_pw(archive_profile, pp = 'SSSP', details=details, label=GROUP_FD_SSSP)
-        load_matdyn(archive_profile, pp = 'PseudoDojo', qdensity="0.5", details=details, label=GROUP_BORN_PSEUDODOJO)
+        load_thermo_pw(archive_profile, pp = 'PseudoDojo', log=log, details=details, label=GROUP_FD_PSEUDODOJO)
+        load_thermo_pw(archive_profile, pp = 'SSSP', log=log, details=details, label=GROUP_FD_SSSP)
+        load_matdyn(archive_profile, pp = 'PseudoDojo', qdensity="0.5", log=log, details=details, label=GROUP_BORN_PSEUDODOJO)
+        load_matdyn_from_yaml((OUTPUT_PATH / "q0.3.yaml").as_posix(), pp = 'SSSP', log=log, details=details, label=GROUP_BORN_SSSP)
+        load_matdyn_from_yaml((OUTPUT_PATH / "q0.5.yaml").as_posix(), pp = 'SSSP', log=log, details=details, label=GROUP_BORN_SSSP)
+        load_matdyn_from_yaml((OUTPUT_PATH / "q0.7.yaml").as_posix(), pp = 'SSSP', log=log, details=details, label=GROUP_BORN_SSSP)
 
     else:
         print(

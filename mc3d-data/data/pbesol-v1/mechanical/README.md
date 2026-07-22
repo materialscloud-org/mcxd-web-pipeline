@@ -46,30 +46,7 @@ The base.json file has the following structure for each material:
             "VRH_average": {
               "bulk_modulus": 186.520654,
               "debye_temp": 245.351103,
-              "lame_1st_para": 165.908422,
-              "lame_2nd_para": 30.918348,
-              "melting_temp": 2341.642084,
-              "min_kappa": 0.724585,
-              "modified_pettifor_ratio": 0.72139988,
-              "p_wave_modulus": 227.745119,
-              "pettifor_ratio": 1.53081493,
-              "poisson_ratio": 0.421458,
-              "pugh_ratio": 0.16576367,
-              "shear_modulus": 30.918348,
-              "sound_vel_LA": 5.179242,
-              "sound_vel_TA": 1.908314,
-              "sound_vel_bulk": 4.68711,
-              "sound_vel_mean": 2.16656,
-              "vickers_hardness": [
-                { "H_1a": 17.961939 },
-                { "H_1b": 4.560456 },
-                { "H_1c": 5.344215 },
-                { "H_2": 2.570456 },
-                { "H_3": 5.58154 },
-                { "H_4": 3.435372 },
-                { "H_5": 2.202449 }
-              ],
-              "young_modulus": 87.898265
+              ...
             },
             "elastic_constants": [
               [234.8494205, 162.356271, 162.356271, 0.0, 0.0, 0.0],
@@ -95,12 +72,7 @@ The base.json file has the following structure for each material:
           "VRH_average": {
             "bulk_modulus": 168.449956,
             "longitudinal_modulus_L": 1927.54662,
-            "modified_pettifor_ratio": 0.74679294,
-            "pettifor_ratio": 2.39649168,
-            "poisson_ratio": 0.43984,
-            "pugh_ratio": 0.10821,
-            "shear_modulus": 18.22853,
-            "young_modulus": 52.492249
+            ...
           },
           "elastic_constants": [
             [239.5600728, 132.8948969, 132.8948969, 0.0, 0.0, 0.0],
@@ -136,19 +108,14 @@ The `meta.json` contains list of property columns for the MC3D landing page.
 
 **SSSP**
 
-We have 3 levels of qpoints_density, I have selected the successful MatdynBaseWorkChains with stable phonons (>5cm$^{-1}$) from the paper/workchains/phbands-qe/{qpoints_density}/matdyn groups:
+We have 3 levels of qpoints_density, we have:
 
-- |q| = 0.3, here there are 198 stable phonons,
-- |q| = 0.5, here there are 587 stable phonons,
-- |q| = 0.7, here there are 2715 stable phonons,
-
-We have 264 materials from the finite-displacement calculations.
+- namespace=elastic.SSSP.born.0.3, for $|q| = 0.3$, here there are 198 stable phonons out of 578 successful workchains,
+- namespace=elastic.SSSP.born.0.5, for $|q| = 0.5$, here there are 587 stable phonons out of 1380 successful workchains,
+- namespace=elastic.SSSP.born.0.7, for $|q| = 0.7$, here there are 2715 stable phonons out of 4093 successful workchains,
+- namespace=elastic.SSSP.fd, for finite-displacement calculations, we have 264 materials.
 
 **PseudoDojo**
 
-We have 298 materials from the finite-displacement calculations.
-
-We have 290 materials from the Born approximation.
-
-
-- 
+- namespace=elastic.PseudoDojo.born.0.5, we have 298 materials from the finite-displacement calculations.
+- namespace=elastic.PseudoDojo.fd, we have 290 materials from the Born approximation at |q|=0.5.

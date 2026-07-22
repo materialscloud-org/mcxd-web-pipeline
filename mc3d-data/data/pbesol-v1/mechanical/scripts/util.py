@@ -399,6 +399,8 @@ def load_matdyn_from_yaml(
 ):
     import os
     import re
+    import yaml
+
     
     filename = os.path.basename(path)
     match = re.search(r'q([0-9\.]+)\.yaml$', filename)
@@ -446,7 +448,7 @@ def load_matdyn_from_yaml(
         details = update_mapping(details, details_entry)
         count_successful += 1
 
-    log(f"Successfully loaded {count_successful} entries from {path}. Skipped {count_skipped} entries.")
+    log(f"Successfully loaded {count_successful} entries from q{qdensity}.yaml. Skipped {count_skipped} entries.")
     return details
 def aggregate_recursive(source, target):
     """
