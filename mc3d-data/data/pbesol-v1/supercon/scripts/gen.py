@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from aiida.storage.sqlite_zip.backend import SqliteZipBackend
-from mc3d_web_pipeline.utils import dump_canonical_json
+from mcxd_web_pipeline.utils import dump_canonical_json
 from supercon import (
     check_base_json,
     find_finest_qdensity,

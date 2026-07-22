@@ -20,7 +20,7 @@ from aiida.orm import (
 )
 from aiida.tools.data.array.kpoints.main import get_explicit_kpoints_path
 from ase.spacegroup.symmetrize import check_symmetry
-from mc3d_web_pipeline.utils import IDS_PATH, get_mc3d_id
+from mcxd_web_pipeline.utils import IDS_PATH, get_mc3d_id
 from tqdm import tqdm
 
 THZ_TO_MEV = 4.14
@@ -925,9 +925,9 @@ def load_scon(
                 details_entry[mc3d_id]["supercon"]["number_of_wannier_functions"] = (
                     inputs_parameters.get("INPUTEPW", {}).get("nbndsub")
                 )
-                details_entry[mc3d_id]["supercon"]["smearing_q"] = (
-                    inputs_parameters.get("INPUTEPW", {}).get("degaussq")
-                )
+                # details_entry[mc3d_id]["supercon"]["smearing_q"] = (
+                #     inputs_parameters.get("INPUTEPW", {}).get("degaussq")
+                # )
                 details_entry[mc3d_id]["supercon"]["fermi_window"] = (
                     inputs_parameters.get("INPUTEPW", {}).get("fsthick")
                 )
@@ -943,6 +943,29 @@ def load_scon(
                     .first()
                     .node
                 )
+                details_entry[mc3d_id]["supercon"]["epw_final_uuid"] = (
+                    epw_final.uuid
+                )
+
+                input_string = epw_final.base.repository.get_object_content('aiida.in')
+                
+                degaussq = float(
+                    re.search(
+                        r'^\s*degaussq\s*=\s*([+-]?\d*\.?\d+(?:[dDeE][+-]?\d+)?)',
+                        input_string,
+                        re.MULTILINE
+                    ).group(1).replace('d', 'e').replace('D', 'E')
+                )
+                degaussw = float(
+                    re.search(
+                        r'^\s*degaussw\s*=\s*([+-]?\d*\.?\d+(?:[dDeE][+-]?\d+)?)',
+                        input_string,
+                        re.MULTILINE
+                    ).group(1).replace('d', 'e').replace('D', 'E')
+                )
+                
+                details_entry[mc3d_id]["supercon"]["smearing_q"] = degaussq
+                details_entry[mc3d_id]["supercon"]["smearing_w"] = degaussw
                 details_entry[mc3d_id]["supercon"]['kgrid_epw_fine'] = {}
                 details_entry[mc3d_id]["supercon"]['qgrid_epw_fine'] = {}
 
@@ -1133,7 +1156,13 @@ def load_aniso(
             )
 
             details_entry[mc3d_id]["supercon"]["aniso_info"] = result
-
+            try:
+                epw_aniso = arraydata_node.creator.inputs.retrieved.creator
+                details_entry[mc3d_id]["supercon"]["epw_aniso_uuid"] = epw_aniso.uuid
+            except Exception as e:
+                log(f"SKIPPING: cannot find epw_aniso from {arraydata_node.uuid}")
+                count_skipped += 1
+                continue
             details = update_mapping(details, details_entry)
 
             count_successful += 1
