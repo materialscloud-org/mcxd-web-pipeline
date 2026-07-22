@@ -53,12 +53,14 @@ def decompress_if_needed(src_path: Path, dst_path: Path) -> Path:
         print(f"Decompressing {src_path.name} -> {dst_path.name}")
         if shutil.which("pigz") is not None:
             # pigz is ~multi-core gzip; much faster than gunzip
-            subprocess.run(
-                ["pigz", "-d", "-c", str(src_path)],
-                check=True,
-                stdout=open(dst_path, "wb"),
-            )
+            with open(dst_path, "wb") as f_out:
+                subprocess.run(
+                    ["pigz", "-d", "-c", str(src_path)],
+                    check=True,
+                    stdout=f_out,
+                )
         else:
+            import gzip
             with gzip.open(src_path, "rb") as f_in, open(dst_path, "wb") as f_out:
                 shutil.copyfileobj(f_in, f_out)
         return dst_path
