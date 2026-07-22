@@ -4,7 +4,6 @@ import time
 from functools import lru_cache
 
 from fastapi import HTTPException
-from fastapi.responses import JSONResponse
 from pymongo import MongoClient
 
 MONGODB_URI = os.environ.get("MC_MONGODB_URI", "mongodb://localhost:27017")
@@ -73,21 +72,22 @@ def return_one_mongodb_entry(db_name, collection_name, entry_id):
     entry = coll.find_one({"_id": entry_id})
     if entry:
         entry["id"] = entry.pop("_id")
-        return JSONResponse(entry)
+        return entry
     else:
         raise HTTPException(status_code=404, detail=f"Entry {entry_id} not found")
 
 
-@lru_cache(maxsize=32)
+@lru_cache(maxsize=32)  # current only used for meta thus doesnt need to be big
 def _get_cached_data_with_timestamp(
     db_name: str, collection_name: str, timestamp_bucket: int
-) -> str:
+) -> list:
     """Internal function that includes timestamp in cache key for TTL behavior"""
-    results = return_all_mongodb_entries(db_name, collection_name)
-    return json.dumps(results)
+    print(f"cache hit {db_name}, {collection_name}")
+
+    return return_all_mongodb_entries(db_name, collection_name)
 
 
-def get_cached_data(db_name: str, collection_name: str, ttl: int = 600) -> str:
+def get_cached_data(db_name: str, collection_name: str, ttl: int = 600) -> list:
     """Get cached overview with 10-minute TTL"""
     current_time = int(time.time())
     timestamp_bucket = current_time // ttl
