@@ -499,18 +499,21 @@ def check_base_json(details, log=print):
                         "elastic_constants": 0,
                         "reuss_average": 0,
                         "voigt_average": 0,
+                        "workchain_uuid": 0
                     },
                     "0.5": {
                         "VRH_average": 0,
                         "elastic_constants": 0,
                         "reuss_average": 0,
                         "voigt_average": 0,
+                        "workchain_uuid": 0
                     },
                     "0.3": {
                         "VRH_average": 0,
                         "elastic_constants": 0,
                         "reuss_average": 0,
                         "voigt_average": 0,
+                        "workchain_uuid": 0
                     },
                 },
                 "PseudoDojo": {
@@ -519,6 +522,7 @@ def check_base_json(details, log=print):
                         "elastic_constants": 0,
                         "reuss_average": 0,
                         "voigt_average": 0,
+                        "workchain_uuid": 0
                     }
                 },
             },
