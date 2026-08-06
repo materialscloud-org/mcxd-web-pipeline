@@ -218,7 +218,7 @@ def kbar_to_gpa(modulus):
 def load_thermo_pw(
     profile,
     label,
-    pp,
+    pseudo,
     log=print,
     details={},
 ):
@@ -280,25 +280,26 @@ def load_thermo_pw(
                 count_skipped += 1
                 continue
 
-            details_entry = {mc3d_id: {"elastic": {pp: {"fd": {}}}}}
-            details_entry[mc3d_id]["elastic"][pp]["fd"]["structure_uuid"] = structure.uuid
+            details_entry = {mc3d_id: {"elastic": {"FD": {pseudo: {}}}}}
+            details_entry[mc3d_id]["elastic"]["FD"][pseudo]["structure_uuid"] = structure.uuid
+            details_entry[mc3d_id]["elastic"]["FD"][pseudo]["workchain_uuid"] = workchain_node.uuid
             elastic_constants = workchain_node.outputs.elastic_constants.get_array("elastic_constants")
             if parser:
                 output_parameters = parser(workchain_node.outputs.retrieved.get_object_content('aiida.out'))
             else:
                 output_parameters = workchain_node.outputs.output_parameters.get_dict()
             try:
-                details_entry[mc3d_id]["elastic"][pp]["fd"]["elastic_constants"] = (elastic_constants / 10).tolist()
-                details_entry[mc3d_id]["elastic"][pp]["fd"]["voigt_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['voigt']))
-                details_entry[mc3d_id]["elastic"][pp]["fd"]["reuss_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['reuss']))
-                details_entry[mc3d_id]["elastic"][pp]["fd"]["VRH_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['vrh']))
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["elastic_constants"] = (elastic_constants / 10).tolist()
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["voigt_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['voigt']))
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["reuss_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['reuss']))
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["VRH_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['vrh']))
                 for average in ['voigt_average', 'reuss_average', 'VRH_average']:
-                    bulk_modulus = details_entry[mc3d_id]["elastic"][pp]["fd"][average]["bulk_modulus"]
-                    young_modulus = details_entry[mc3d_id]["elastic"][pp]["fd"][average]["young_modulus"]
+                    bulk_modulus = details_entry[mc3d_id]["elastic"]["FD"][pseudo][average]["bulk_modulus"]
+                    young_modulus = details_entry[mc3d_id]["elastic"]["FD"][pseudo][average]["young_modulus"]
                     pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / 10 / young_modulus
                     modified_pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / 10 / bulk_modulus
-                    details_entry[mc3d_id]["elastic"][pp]["fd"][average]["pettifor_ratio"] = pettifor_ratio
-                    details_entry[mc3d_id]["elastic"][pp]["fd"][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
+                    details_entry[mc3d_id]["elastic"]["FD"][pseudo][average]["pettifor_ratio"] = pettifor_ratio
+                    details_entry[mc3d_id]["elastic"]["FD"][pseudo][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
             except Exception as e:
                 print(f"Error processing {source}[{workchain_node.pk}]: {e}")
                 pass
@@ -315,8 +316,8 @@ def load_thermo_pw(
 def load_matdyn(
     profile,
     label,
-    pp,
-    qdensity="0.5",
+    pseudo,
+    qdensity,
     log=print,
     details={},
 ):
@@ -365,21 +366,45 @@ def load_matdyn(
                 count_skipped += 1
                 continue
 
-            details_entry = {mc3d_id: {"elastic": {pp: {"born": {qdensity: {}}}}}}
-            elastic_constants =np.array(workchain_node.outputs.output_elastic_properties.get("elastic_constants"))
-            details_entry[mc3d_id]["elastic"][pp]['born'][qdensity]["elastic_constants"] = elastic_constants.tolist()
-            details_entry[mc3d_id]["elastic"][pp]['born'][qdensity]["voigt_average"] = workchain_node.outputs.output_elastic_properties.get("voigt_average")
-            details_entry[mc3d_id]["elastic"][pp]['born'][qdensity]["reuss_average"] = workchain_node.outputs.output_elastic_properties.get("reuss_average")
-            details_entry[mc3d_id]["elastic"][pp]['born'][qdensity]["VRH_average"] = workchain_node.outputs.output_elastic_properties.get("VRH_average")
+            details_entry = {mc3d_id: {"elastic": {"Born": {pseudo: {qdensity: {}}}}}}
+            details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["workchain_uuid"] = workchain_node.uuid
+
+            # The output ports of MatdynCalculation are actually exposed to MatdynBaseWorkChain but sometimes
+            # it is not, so we need to find the actual MatdynCalculation node.
+            # This could be a bug inside aiida
+            # The MatdynBaseWorkChain has a link named "iteration_01" to the MatdynCalculation node
+            
+            if "output_elastic_properties" in workchain_node.outputs._get_keys():
+                output_elastic_properties = workchain_node.outputs.output_elastic_properties
+
+            else:
+                calculation_node =  (
+                    workchain_node.base.links.get_outgoing(link_label_filter="iteration_01")
+                    .first()
+                    .node
+                )
+
+                if "output_elastic_properties" in calculation_node.outputs._get_keys():
+                    output_elastic_properties = calculation_node.outputs.output_elastic_properties
+                else:
+                    # log(f"DEBUG: output_elastic_properties not found in calculation node {calculation_node.pk}")
+                    matdyn_elastic_yaml = calculation_node.outputs.retrieved.get_object_content('matdyn.elastic.yaml')
+                    output_elastic_properties = yaml.safe_load(matdyn_elastic_yaml)
+
+            elastic_constants = np.array(output_elastic_properties.get("elastic_constants"))
+            details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["elastic_constants"] = elastic_constants.tolist()
+            details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["voigt_average"] = output_elastic_properties.get("voigt_average")
+            details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["reuss_average"] = output_elastic_properties.get("reuss_average")
+            details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["VRH_average"] = output_elastic_properties.get("VRH_average")
             for average in ['voigt_average', 'reuss_average', 'VRH_average']:
-                bulk_modulus = details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["bulk_modulus"]
-                young_modulus = details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["young_modulus"]
+                bulk_modulus = details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][average]["bulk_modulus"]
+                young_modulus = details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][average]["young_modulus"]
                 pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / young_modulus
                 modified_pettifor_ratio = (elastic_constants[0][1] - elastic_constants[3][3]) / bulk_modulus
-                pugh_ratio = 1 / details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["pugh_ratio"]
-                details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["pugh_ratio"] = pugh_ratio
-                details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["pettifor_ratio"] = pettifor_ratio
-                details_entry[mc3d_id]["elastic"][pp]['born'][qdensity][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
+                pugh_ratio = 1 / details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][average]["pugh_ratio"]
+                details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][average]["pugh_ratio"] = pugh_ratio
+                details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][average]["pettifor_ratio"] = pettifor_ratio
+                details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][average]["modified_pettifor_ratio"] = modified_pettifor_ratio
             details = update_mapping(details, details_entry)
 
             count_successful += 1
@@ -390,115 +415,108 @@ def load_matdyn(
             count_skipped += 1
             continue
 
-def load_matdyn_from_yaml(
-    path,
-    label,
-    pp,
-    log=print,
-    details={},
-):
-    import os
-    import re
-    import yaml
-
-    
-    filename = os.path.basename(path)
-    match = re.search(r'q([0-9\.]+)\.yaml$', filename)
-    if match:
-        qdensity = match.group(1)
-    else:
-        qdensity = "0.5"
-
-    with open(path, 'r') as f:
-        data = yaml.safe_load(f) or {}
-
-    count_successful = 0
-    count_skipped = 0
-
-    for key, value in data.items():
-        parts = key.split('-', 1)
-        if len(parts) < 2:
-            log(f"SKIPPING: Invalid key format: {key}")
-            count_skipped += 1
-            continue
-
-        extras = {
-            "source_db": parts[0],
-            "source_id": parts[1]
-        }
-
-        mc3d_id = get_mc3d_id_from_extras(extras)
-
-        if not mc3d_id:
-            log(f"SKIPPING: MC3D ID not assigned to {extras}")
-            count_skipped += 1
-            continue
-
-        details_entry = {
-            mc3d_id: {
-                "elastic": {
-                    pp: {
-                        "born": {
-                            qdensity: value
-                        }
-                    }
-                }
-            }
-        }
-        details = update_mapping(details, details_entry)
-        count_successful += 1
-
-    log(f"Successfully loaded {count_successful} entries from q{qdensity}.yaml. Skipped {count_skipped} entries.")
-    return details
 def aggregate_recursive(source, target):
     """
-    Recursively traverse the source dictionary and aggregate the "leaf" values to the list in the target dictionary.
-    """
-    for key, value in source.items():
-        if isinstance(value, dict):
-            target_node = target.setdefault(key, {})
-            aggregate_recursive(value, target_node)
-        else:
-            target_list = target.setdefault(key, [])
-            target_list.append(value)
+    According to the structure of target, count how many times
+    each target leaf key appears in source.
 
+    对于 target 中的叶子节点：
+    无论 source 中对应的值是数字、列表还是字典，都只计数一次。
+    """
+    if not isinstance(source, dict):
+        return target
+
+    for key in target:
+        # source 中没有这个字段，不计数
+        if key not in source:
+            continue
+
+        target_value = target[key]
+        source_value = source[key]
+
+        # target 中是字典，说明这一层属于统计路径，需要继续递归
+        if isinstance(target_value, dict):
+            if isinstance(source_value, dict):
+                aggregate_recursive(source_value, target_value)
+
+        # target 中是整数，说明这是需要统计的最终字段
+        else:
+            target[key] += 1
+
+    return target
 
 def check_base_json(details, log=print):
     statistics = {
-        "elastic": {}
+        "elastic": {
+            "Born": {
+                "SSSP": {
+                    "0.7": {
+                        "VRH_average": 0,
+                        "elastic_constants": 0,
+                        "reuss_average": 0,
+                        "voigt_average": 0,
+                    },
+                    "0.5": {
+                        "VRH_average": 0,
+                        "elastic_constants": 0,
+                        "reuss_average": 0,
+                        "voigt_average": 0,
+                    },
+                    "0.3": {
+                        "VRH_average": 0,
+                        "elastic_constants": 0,
+                        "reuss_average": 0,
+                        "voigt_average": 0,
+                    },
+                },
+                "PseudoDojo": {
+                    "0.5": {
+                        "VRH_average": 0,
+                        "elastic_constants": 0,
+                        "reuss_average": 0,
+                        "voigt_average": 0,
+                    }
+                },
+            },
+            "FD": {
+                "SSSP": {
+                    "VRH_average": 0,
+                    "elastic_constants": 0,
+                    "reuss_average": 0,
+                    "structure_uuid": 0,
+                    "voigt_average": 0,
+                },
+                "PseudoDojo": {
+                    "VRH_average": 0,
+                    "elastic_constants": 0,
+                    "reuss_average": 0,
+                    "structure_uuid": 0,
+                    "voigt_average": 0,
+                },
+            },
+        }
     }
+
     for detail in details.values():
         aggregate_recursive(detail, statistics)
 
-    elastic_stats = statistics.get("elastic", {})
-    for pp, pp_stats in elastic_stats.items():
-        log(f"Pseudopotential: {pp}")
-        
-        # 1. Born stats
-        born_stats = pp_stats.get("born", {})
-        for qdensity, q_stats in born_stats.items():
-            log(f"  Born (q-density: {qdensity}):")
-            for k, v in q_stats.items():
-                if isinstance(v, dict):
-                    log(f"    {k:38s}:")
-                    for kk, vv in v.items():
-                        log(f"      {kk:36s}: {len(vv):5d}")
-                else:
-                    log(f"    {k:38s}: {len(v):5d}")
-                    
-        # 2. FD stats
-        fd_stats = pp_stats.get("fd", {})
-        if fd_stats:
-            log(f"  Finite Displacement (FD):")
-            for k, v in fd_stats.items():
-                if isinstance(v, dict):
-                    log(f"    {k:38s}:")
-                    for kk, vv in v.items():
-                        log(f"      {kk:36s}: {len(vv):5d}")
-                else:
-                    log(f"    {k:38s}: {len(v):5d}")
+    log_statistics(statistics, log=log)
 
+    return statistics
 
+def log_statistics(node, log=print, indent=0):
+    """
+    Recursively print all leaf counts.
+    """
+    for key, value in node.items():
+        prefix = " " * indent
+
+        if isinstance(value, dict):
+            log(f"{prefix}{key}:")
+            log_statistics(value, log=log, indent=indent + 2)
+        else:
+            log(f"{prefix}{key:38s}: {value:5d}")
+            
 def compare(dict1, dict2, sources=None):
     shared_sources = dict1.keys() & dict2.keys()
     if sources:

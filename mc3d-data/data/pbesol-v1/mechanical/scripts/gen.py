@@ -13,8 +13,8 @@ from mcxd_web_pipeline.utils import dump_canonical_json
 from util import (
     load_thermo_pw,
     load_matdyn,
-    load_matdyn_from_yaml,
     check_base_json,
+    aggregate_recursive
 )
 
 OUTPUT_PATH = Path().resolve().parent
@@ -26,7 +26,9 @@ ARCHIVE_ELASTIC       = "elastic.aiida"
 GROUP_FD_PSEUDODOJO   = "paper/FD/PseudoDojo"
 GROUP_FD_SSSP         = "paper/FD/SSSP"
 GROUP_BORN_PSEUDODOJO = "paper/Born/PseudoDojo"
-GROUP_BORN_SSSP       = "paper/Born/SSSP"
+GROUP_BORN_SSSP_07 = "paper/Born/SSSP/q0.7"
+GROUP_BORN_SSSP_05 = "paper/Born/SSSP/q0.5"
+GROUP_BORN_SSSP_03 = "paper/Born/SSSP/q0.3"
 
 def log(msg):
     with open(LOG_DST, "a") as f:
@@ -74,17 +76,34 @@ def main():
             details = json.load(handle)
     elif args.profile:
         archive_profile = SqliteZipBackend.create_profile(args.profile)
-        load_thermo_pw(archive_profile, details=details)
-        load_matdyn(archive_profile, details=details)
+        for group, pseudo in [
+            (GROUP_FD_PSEUDODOJO, "PseudoDojo"), 
+            (GROUP_FD_SSSP, "SSSP")
+            ]:
+            load_thermo_pw(archive_profile, group, pseudo, details=details)
+        for group, pseudo, qdensity in [
+            (GROUP_BORN_PSEUDODOJO, "PseudoDojo", 0.5),
+            (GROUP_BORN_SSSP_07, "SSSP", 0.7),
+            (GROUP_BORN_SSSP_05, "SSSP", 0.5),
+            (GROUP_BORN_SSSP_03, "SSSP", 0.3)
+        ]:
+            load_matdyn(archive_profile, group, pseudo, qdensity, details=details)
+
     elif args.archive:
         AIIDA_PROFILE_NAME = Path(args.archive) / ARCHIVE_ELASTIC
         archive_profile = SqliteZipBackend.create_profile(AIIDA_PROFILE_NAME)
-        load_thermo_pw(archive_profile, pp = 'PseudoDojo', log=log, details=details, label=GROUP_FD_PSEUDODOJO)
-        load_thermo_pw(archive_profile, pp = 'SSSP', log=log, details=details, label=GROUP_FD_SSSP)
-        load_matdyn(archive_profile, pp = 'PseudoDojo', qdensity="0.5", log=log, details=details, label=GROUP_BORN_PSEUDODOJO)
-        load_matdyn_from_yaml((OUTPUT_PATH / "q0.3.yaml").as_posix(), pp = 'SSSP', log=log, details=details, label=GROUP_BORN_SSSP)
-        load_matdyn_from_yaml((OUTPUT_PATH / "q0.5.yaml").as_posix(), pp = 'SSSP', log=log, details=details, label=GROUP_BORN_SSSP)
-        load_matdyn_from_yaml((OUTPUT_PATH / "q0.7.yaml").as_posix(), pp = 'SSSP', log=log, details=details, label=GROUP_BORN_SSSP)
+        for group, pseudo in [
+            (GROUP_FD_PSEUDODOJO, "PseudoDojo"), 
+            (GROUP_FD_SSSP, "SSSP")
+            ]:
+            load_thermo_pw(archive_profile, group, pseudo, details=details)
+        for group, pseudo, qdensity in [
+            (GROUP_BORN_PSEUDODOJO, "PseudoDojo", 0.5),
+            (GROUP_BORN_SSSP_07, "SSSP", 0.7),
+            (GROUP_BORN_SSSP_05, "SSSP", 0.5),
+            (GROUP_BORN_SSSP_03, "SSSP", 0.3)
+        ]:
+            load_matdyn(archive_profile, group, pseudo, qdensity, details=details)
 
     else:
         print(
