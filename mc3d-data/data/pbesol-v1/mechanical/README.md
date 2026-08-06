@@ -153,6 +153,8 @@ The elastic moduli, elastic constants, and hardness values are expressed in GPa,
 | `sound_vel_LA` | $v^{\mathrm{LA}}$ | Longitudinal acoustic sound velocity | $km / s$ | Longitudinal acoustic mode. |
 | `sound_vel_TA` | $v^{\mathrm{TA}}$ | Transverse acoustic sound velocity | $km / s$ | Transverse acoustic mode. |
 | `sound_vel_bulk` | $v^{\mathrm{B}}$ | Bulk sound velocity | $km / s$ | Sound velocity derived from the bulk modulus. |
+| `sound_vel_shear` | $v^{\mathrm{S}}$ | Shear sound velocity | $km / s$ | Sound velocity derived from the shear modulus. |
+| `sound_vel_compressional` | $v^{\mathrm{P}}$ | Compressional sound velocity | $km / s$ | Sound velocity derived from the compressional modulus. |
 | `sound_vel_mean` | $v^{\mathrm{m}}$ | Mean sound velocity | $km / s$ | Average acoustic velocity used, for example, in Debye-temperature estimates. |
 | `vickers_hardness` | $H^{\mathrm{V}}$ | Vickers hardness | GPa | May contain several estimates. An empty array indicates that no estimate is available. |
 | `elastic_constants` | $C_{ij}$ | Elastic stiffness constants | GPa | Stored as an elastic-stiffness matrix, normally in Voigt notation. |

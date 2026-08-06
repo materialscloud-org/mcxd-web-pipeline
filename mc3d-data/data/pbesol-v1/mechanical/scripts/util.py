@@ -199,9 +199,9 @@ def parse_moduli(stdout):
             'target_dict': results,
             'target_key': 'debye',
             'properties': {
-                'approximate_temperature': re.compile(
-                    r"The approximate Debye temperature\s+is\s+(-?[\d.]+)\s*K"
-                ),
+                # 'approximate_temperature': re.compile(
+                #     r"The approximate Debye temperature\s+is\s+(-?[\d.]+)\s*K"
+                # ),
                 'average_sound_velocity': re.compile(
                     r"Average Debye sound velocity\s*=\s*(-?[\d.]+)\s*m/s"
                 ),
@@ -270,6 +270,11 @@ def load_thermo_pw(
         ('young_modulus_E', 'young_modulus'),
         ('poisson_ratio_n', 'poisson_ratio'),
         ('pugh_ratio_r', 'pugh_ratio'),
+        ('average_sound_velocity', 'sound_vel_mean'),
+        ('bulk_V_B', 'sound_vel_bulk'),
+        ('shear_V_G', 'sound_vel_shear'),
+        ('compressional_V_P', 'sound_vel_compressional'),
+        ('approximate_temperature', 'debye_temp'),
     )
     def rename_modulus(modulus):
         from copy import deepcopy
@@ -640,7 +645,6 @@ def converged_average_modulus(converged, average, modulus):
         source for (source, _average, _modulus) in converged
         if average == _average and modulus == _modulus
     ]
-
 
 def exclude_sources(dict, sources):
     filtered_dict = {}
