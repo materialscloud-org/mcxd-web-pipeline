@@ -132,11 +132,10 @@ def parse_moduli(stdout):
     import re
     results = {
         'moduli': {},
-        'sound_velocities': {}
+        'sound_velocities': {},
+        'debye': {}
     }
 
-    # Define all properties and their regex in one structure
-    # CORRECTED: All value-capturing groups now use (-?[\d\.]+)
     definitions = {
         'voigt': {
             'block_regex': re.compile(r"Voigt approximation:\s*([\s\S]*?)(?=\n\s*Reuss approximation:|\Z)"),
@@ -173,18 +172,47 @@ def parse_moduli(stdout):
             }
         },
         'velocities': {
-            'block_regex': re.compile(r"Voigt-Reuss-Hill average; sound velocities:\s*([\s\S]*?)(?=\n\s*\n|\Z)"),
-            'target_dict': results, # The target is the top-level results for velocities
-            'target_key': 'sound_velocities', # The key within the target dict
+            'block_regex': re.compile(
+                r"Voigt-Reuss-Hill average; sound velocities:"
+                r"\s*([\s\S]*?)(?=\n\s*\+{5,}|\Z)"
+            ),
+            'target_dict': results,
+            'target_key': 'sound_velocities',
             'properties': {
-                'compressional_V_P': re.compile(r"Compressional\s+V_P\s*=\s*(-?[\d\.]+)"),
-                'bulk_V_B': re.compile(r"Bulk\s+V_B\s*=\s*(-?[\d\.]+)"),
-                'shear_V_G': re.compile(r"Shear\s+V_G\s*=\s*(-?[\d\.]+)")
+                'compressional_V_P': re.compile(
+                    r"Compressional\s+V_P\s*=\s*(-?[\d.]+)"
+                ),
+                'bulk_V_B': re.compile(
+                    r"Bulk\s+V_B\s*=\s*(-?[\d.]+)"
+                ),
+                'shear_V_G': re.compile(
+                    r"Shear\s+V_G\s*=\s*(-?[\d.]+)"
+                )
+            },
+        },
+        'debye': {
+            'block_regex': re.compile(
+                r"(\s*The approximate Debye temperature[\s\S]*?"
+                r"Debye temperature\s*=\s*-?[\d.]+\s*K)"
+                r"(?=\n\s*\+{5,}|\Z)"
+            ),
+            'target_dict': results,
+            'target_key': 'debye',
+            'properties': {
+                'approximate_temperature': re.compile(
+                    r"The approximate Debye temperature\s+is\s+(-?[\d.]+)\s*K"
+                ),
+                'average_sound_velocity': re.compile(
+                    r"Average Debye sound velocity\s*=\s*(-?[\d.]+)\s*m/s"
+                ),
+                'temperature': re.compile(
+                    r"^\s*Debye temperature\s*=\s*(-?[\d.]+)\s*K",
+                    re.MULTILINE
+                )
             }
         }
     }
 
-    # A single loop to process everything
     for block_name, definition in definitions.items():
         block_match = definition['block_regex'].search(stdout)
         if not block_match:
@@ -214,6 +242,13 @@ def kbar_to_gpa(modulus):
         if key in ['bulk_modulus', 'young_modulus', 'shear_modulus']:
             modulus[key] = value / 10
     return modulus
+
+def ms_to_kms(sound_velocities):
+    for key, value in sound_velocities.items():
+        if key in ['compressional_V_P', 'bulk_V_B', 'shear_V_G', 'average_sound_velocity']:
+            sound_velocities[key] = value / 1e3
+    return sound_velocities
+
 
 def load_thermo_pw(
     profile,
@@ -293,6 +328,9 @@ def load_thermo_pw(
                 details_entry[mc3d_id]["elastic"]["FD"][pseudo]["voigt_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['voigt']))
                 details_entry[mc3d_id]["elastic"]["FD"][pseudo]["reuss_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['reuss']))
                 details_entry[mc3d_id]["elastic"]["FD"][pseudo]["VRH_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['vrh']))
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["sound_velocities"] = ms_to_kms(output_parameters['sound_velocities'])
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["debye"] = ms_to_kms(output_parameters['average_sound_velocity'])
+                
                 for average in ['voigt_average', 'reuss_average', 'VRH_average']:
                     bulk_modulus = details_entry[mc3d_id]["elastic"]["FD"][pseudo][average]["bulk_modulus"]
                     young_modulus = details_entry[mc3d_id]["elastic"]["FD"][pseudo][average]["young_modulus"]
