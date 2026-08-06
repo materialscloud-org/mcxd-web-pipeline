@@ -245,7 +245,7 @@ def kbar_to_gpa(modulus):
 
 def ms_to_kms(sound_velocities):
     for key, value in sound_velocities.items():
-        if key in ['compressional_V_P', 'bulk_V_B', 'shear_V_G', 'average_sound_velocity']:
+        if key in ['sound_vel_bulk', 'sound_vel_shear', 'sound_vel_compressional', 'sound_vel_mean']:
             sound_velocities[key] = value / 1e3
     return sound_velocities
 
@@ -255,6 +255,7 @@ def load_thermo_pw(
     label,
     pseudo,
     log=print,
+    parser = None,
     details={},
 ):
     count_successful = 0
@@ -280,10 +281,10 @@ def load_thermo_pw(
         from copy import deepcopy
         new_modulus = deepcopy(modulus)
         for old_key, new_key in thermo_pw_to_matdyn:
-            new_modulus[new_key] = new_modulus.pop(old_key)
+            if old_key in new_modulus:
+                new_modulus[new_key] = new_modulus.pop(old_key)
         return new_modulus
         
-    parser = None
     qb = orm.QueryBuilder()
     qb.append(
         orm.Group,
@@ -333,8 +334,8 @@ def load_thermo_pw(
                 details_entry[mc3d_id]["elastic"]["FD"][pseudo]["voigt_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['voigt']))
                 details_entry[mc3d_id]["elastic"]["FD"][pseudo]["reuss_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['reuss']))
                 details_entry[mc3d_id]["elastic"]["FD"][pseudo]["VRH_average"] = kbar_to_gpa(rename_modulus(output_parameters['moduli']['vrh']))
-                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["sound_velocities"] = ms_to_kms(output_parameters['sound_velocities'])
-                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["debye"] = ms_to_kms(output_parameters['average_sound_velocity'])
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["sound_velocities"] = ms_to_kms(rename_modulus(output_parameters['sound_velocities']))
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["debye"] = ms_to_kms(rename_modulus(output_parameters['debye']))
                 
                 for average in ['voigt_average', 'reuss_average', 'VRH_average']:
                     bulk_modulus = details_entry[mc3d_id]["elastic"]["FD"][pseudo][average]["bulk_modulus"]

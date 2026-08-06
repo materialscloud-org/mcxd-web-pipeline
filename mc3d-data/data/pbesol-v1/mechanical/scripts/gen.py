@@ -11,6 +11,7 @@ from pathlib import Path
 from aiida.storage.sqlite_zip.backend import SqliteZipBackend
 from mcxd_web_pipeline.utils import dump_canonical_json
 from util import (
+    parse_moduli,
     load_thermo_pw,
     load_matdyn,
     check_base_json,
@@ -80,7 +81,7 @@ def main():
             (GROUP_FD_PSEUDODOJO, "PseudoDojo"), 
             (GROUP_FD_SSSP, "SSSP")
             ]:
-            load_thermo_pw(archive_profile, group, pseudo, details=details)
+            load_thermo_pw(archive_profile, group, pseudo, parser=parse_moduli, details=details)
         for group, pseudo, qdensity in [
             (GROUP_BORN_PSEUDODOJO, "PseudoDojo", 0.5),
             (GROUP_BORN_SSSP_07, "SSSP", 0.7),
@@ -96,7 +97,7 @@ def main():
             (GROUP_FD_PSEUDODOJO, "PseudoDojo"), 
             (GROUP_FD_SSSP, "SSSP")
             ]:
-            load_thermo_pw(archive_profile, group, pseudo, details=details)
+            load_thermo_pw(archive_profile, group, pseudo, parser=parse_moduli, details=details)
         for group, pseudo, qdensity in [
             (GROUP_BORN_PSEUDODOJO, "PseudoDojo", 0.5),
             (GROUP_BORN_SSSP_07, "SSSP", 0.7),
