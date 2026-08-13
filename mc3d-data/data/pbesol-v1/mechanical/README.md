@@ -40,8 +40,8 @@ The base.json file has the following structure for each material:
 {
   "mc3d-id": {
     "elastic": {
-      "<pseudopotential>": {
-        "born": {
+      "Born": {
+        "<pseudopotential>": {
           "<qdensity>": {
             "VRH_average": {
               "bulk_modulus": 186.520654,
@@ -70,37 +70,44 @@ The base.json file has the following structure for each material:
           }
         },
         "FD": {
-          "VRH_average": {
-            "bulk_modulus": 168.449956,
-            "longitudinal_modulus_L": 1927.54662,
-            ...
-          },
-          "elastic_constants": [
-            [239.5600728, 132.8948969, 132.8948969, 0.0, 0.0, 0.0],
-            [132.8948969, 239.5600728, 132.8948969, 0.0, 0.0, 0.0],
-            [132.8948969, 132.8948969, 239.5600728, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 7.09765889, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 7.09765889, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 7.09765889]
-          ],
-          "reuss_average": {
-            "bulk_modulus": 168.449956,
-            "modified_pettifor_ratio": 0.74679294,
-            ...
-          },
-          "structure_uuid": "20dcccf3-417b-4f8e-8cd2-e46ee8f1959b",
-          "voigt_average": {
-            "bulk_modulus": 168.449956,
-            "modified_pettifor_ratio": 0.74679294,
-            ...
-          },
-          "workchain_uuid": "c878f6e3-1326-4992-9691-e126b3490152"
+          "<pseudopotential>": {
+            "<qdensity>": {
+              "VRH_average": {
+                "bulk_modulus": 168.449956,
+                "longitudinal_modulus_L": 1927.54662,
+                ...
+              },
+              "elastic_constants": [
+                [239.5600728, 132.8948969, 132.8948969, 0.0, 0.0, 0.0],
+                [132.8948969, 239.5600728, 132.8948969, 0.0, 0.0, 0.0],
+                [132.8948969, 132.8948969, 239.5600728, 0.0, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 7.09765889, 0.0, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 7.09765889, 0.0],
+                [0.0, 0.0, 0.0, 0.0, 0.0, 7.09765889]
+              ],
+              "reuss_average": {
+                "bulk_modulus": 168.449956,
+                "modified_pettifor_ratio": 0.74679294,
+                ...
+              },
+              "structure_uuid": "20dcccf3-417b-4f8e-8cd2-e46ee8f1959b",
+              "voigt_average": {
+                "bulk_modulus": 168.449956,
+                "modified_pettifor_ratio": 0.74679294,
+                ...
+              },
+              "workchain_uuid": "c878f6e3-1326-4992-9691-e126b3490152"
+            }
+          }
         }
       }
     }
   }
 }
 ```
+
+pseudopotential can be "SSSP" or "Pseudodojo".
+qdensity can be "0.3", "0.5", "0.7" or "fd".
 
 ## Organization of the MC3D discover website:
 
