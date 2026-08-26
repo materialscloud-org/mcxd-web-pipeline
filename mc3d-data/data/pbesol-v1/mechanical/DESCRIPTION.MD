@@ -1,0 +1,1 @@
+This dataset provides results from a high-throughput calculations of elastic properties of materials using Density Functional Theory (DFT). Computed to identify and characterize promising ductile superconductors. 

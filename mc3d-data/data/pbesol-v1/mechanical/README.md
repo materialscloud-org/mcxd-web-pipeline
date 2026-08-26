@@ -178,3 +178,14 @@ v_LA    4.75 km s⁻¹
 
 A symbol should not normally be shown without a human-readable description, because symbols such as \(M\), \(B\), and \(G\) may be ambiguous outside their immediate context.
 
+Form of the elastic constant table:
+
+Elastic constant $ \sigma_{i}=C_{ij}  \epsilon_{j}$:
+| $C_{ij}$ | $\epsilon_{1}$ | $\epsilon_{2}$ | $\epsilon_{3}$ | $\epsilon_{4}$ | $\epsilon_{5}$ | $\epsilon_{6}$ |
+|---|---|---|---|---|---|---|
+| $\sigma_{1}$ | $C_{11}$ | $C_{12}$ | $C_{13}$ | $C_{14}$ | $C_{15}$ | $C_{16}$ |
+| $\sigma_{2}$ | $C_{12}$ | $C_{22}$ | $C_{23}$ | $C_{24}$ | $C_{25}$ | $C_{26}$ |
+| $\sigma_{3}$ | $C_{13}$ | $C_{23}$ | $C_{33}$ | $C_{34}$ | $C_{35}$ | $C_{36}$ |
+| $\sigma_{4}$ | $C_{14}$ | $C_{24}$ | $C_{34}$ | $C_{44}$ | $C_{45}$ | $C_{46}$ |
+| $\sigma_{5}$ | $C_{15}$ | $C_{25}$ | $C_{35}$ | $C_{45}$ | $C_{55}$ | $C_{56}$ |
+| $\sigma_{6}$ | $C_{16}$ | $C_{26}$ | $C_{36}$ | $C_{46}$ | $C_{56}$ | $C_{66}$ |
