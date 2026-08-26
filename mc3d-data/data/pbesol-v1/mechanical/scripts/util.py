@@ -459,6 +459,170 @@ def load_matdyn(
             count_skipped += 1
             continue
 
+def calculate_iso_tc(max_eigenvalue):
+    from scipy.interpolate import interp1d
+
+    me_array = max_eigenvalue.get_array('max_eigenvalue')
+    if me_array[:, 1].max() < 1.0:
+        return 0.0
+    else:
+        return float(interp1d(me_array[:, 1], me_array[:, 0])(1.0))
+
+def calculate_Allen_Dynes_tc(a2f, mustar = 0.13):
+    import numpy
+    w        = a2f.get_array('frequency')
+    # Here we preassume that there are 10 smearing values for a2f calculation
+    spectral = a2f.get_array('a2f')[:, 9]
+    mev2K    = 11.604525006157
+
+    _lambda  = 2*numpy.trapz(numpy.divide(spectral, w), x=w)
+
+    # wlog =  np.exp(np.average(np.divide(alpha, w), weights=np.log(w)))
+    wlog     =  numpy.exp(2/_lambda*numpy.trapz(numpy.multiply(numpy.divide(spectral, w), numpy.log(w)), x=w))
+
+    denominator = _lambda-mustar*(1+0.62*_lambda)
+    if denominator < 0:
+        Tc = 0.0
+    else:
+        Tc = wlog/1.2*numpy.exp(-1.04*(1+_lambda)/denominator) * mev2K
+
+    return (wlog, _lambda, Tc)
+
+def load_scon(
+    profile,
+    label,
+    log = print,
+    details = {},
+):
+
+    count_successful = 0
+    count_skipped = 0
+
+    from aiida import orm, load_profile
+    load_profile(profile, allow_switch=True)
+
+    qb_scon = orm.QueryBuilder().append(
+        orm.Group, filters={'label': label}, tag="scon_group",
+    ).append(
+        orm.WorkChainNode, project=["*"], tag="scon_wc", with_group="scon_group",
+        filters={"attributes.exit_status": 0}
+    ).append(
+        orm.XyData, project=["*"], with_incoming="scon_wc",
+        edge_filters={"label": "max_eigenvalue"},
+    ).append(
+        orm.ArrayData, project=["*"], with_incoming="scon_wc",
+        edge_filters={"label": "a2f"},
+    )
+
+    for workchain_node, max_eigenvalue, a2f in tqdm(qb_scon.iterall(), total=qb_scon.count()):
+        try:
+            structure = workchain_node.inputs.structure
+
+            if 'source_db' not in workchain_node.base.extras.all:
+                extras = workchain_node.inputs.structure.base.extras.all
+            else:
+                extras = workchain_node.base.extras.all
+
+            if 'source_id' not in extras:
+                log(f"SKIPPING: source_id not found in {workchain_node.pk} {extras}")
+                count_skipped += 1
+                continue
+
+            if "source_id" not in extras:
+                log(f"SKIPPING: source_id not found in {workchain_node.pk} {extras}")
+                count_skipped += 1
+                continue
+
+            mc3d_id = get_mc3d_id_from_extras(extras)
+
+            if not mc3d_id:
+                log(f"SKIPPING: MC3D ID not assigned to {extras}")
+                count_skipped += 1
+                continue
+            details_entry = {}
+
+
+            wlog, _lambda, allen_dynes_tc = calculate_Allen_Dynes_tc(a2f)
+            iso_tc = calculate_iso_tc(max_eigenvalue)
+
+            details_entry["iso_tc"] = iso_tc
+            details_entry["allen_dynes_tc"] = allen_dynes_tc
+
+            if mc3d_id in details:
+                details[mc3d_id]["elastic"]["FD"]["PseudoDojo"].update(details_entry)
+            else:
+                details[mc3d_id]["elastic"]["FD"]["PseudoDojo"] = details_entry
+
+            count_successful += 1
+
+        except Exception as exception:
+            log(f"Found exception for {mc3d_id}: {exception}")
+            traceback.print_exc()
+            count_skipped += 1
+            continue
+
+
+def calculate_c(details, log=print):
+    """Calculate and add the Pugh--Pettifor superconducting descriptor.
+
+    The descriptor is evaluated separately for the Voigt, Reuss, and VRH
+    elastic averages and stored as ``c`` in the corresponding average mapping:
+
+    ``c = iso_tc / mean(iso_tc) + pettifor_ratio / mean(pettifor_ratio)
+    - pugh_ratio / mean(pugh_ratio)``.
+
+    Only entries containing all three finite values for a given average are
+    included in that average's reference means and receive a descriptor value.
+    ``details`` is updated in place and returned for convenience.
+    """
+    averages = ("voigt_average", "reuss_average", "VRH_average")
+    values_by_average = {average: [] for average in averages}
+
+    for mc3d_id, detail in details.items():
+        try:
+            fd_pseudodojo = detail["elastic"]["FD"]["PseudoDojo"]
+            iso_tc = float(fd_pseudodojo["iso_tc"])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+        for average in averages:
+            try:
+                elastic_average = fd_pseudodojo[average]
+                pettifor_ratio = float(elastic_average["pettifor_ratio"])
+                pugh_ratio = float(elastic_average["pugh_ratio"])
+            except (KeyError, TypeError, ValueError):
+                continue
+
+            if np.isfinite((iso_tc, pettifor_ratio, pugh_ratio)).all():
+                values_by_average[average].append(
+                    (mc3d_id, elastic_average, iso_tc, pettifor_ratio, pugh_ratio)
+                )
+
+    for average, values in values_by_average.items():
+        if not values:
+            continue
+
+        iso_tc_average = np.mean([value[2] for value in values])
+        pettifor_average = np.mean([value[3] for value in values])
+        pugh_average = np.mean([value[4] for value in values])
+
+        if np.isclose((iso_tc_average, pettifor_average, pugh_average), 0.0).any():
+            log(
+                f"SKIPPING c calculation for {average}: "
+                "at least one reference average is zero."
+            )
+            continue
+
+        for _, elastic_average, iso_tc, pettifor_ratio, pugh_ratio in values:
+            elastic_average["c"] = float(
+                iso_tc / iso_tc_average
+                + pettifor_ratio / pettifor_average
+                - pugh_ratio / pugh_average
+            )
+
+    return details
+
+
 def aggregate_recursive(source, target):
     """
     According to the structure of target, count how many times
@@ -535,6 +699,8 @@ def check_base_json(details, log=print):
                     "voigt_average": 0,
                 },
                 "PseudoDojo": {
+                    "iso_tc": 0,
+                    "allen_dynes_tc": 0,
                     "VRH_average": 0,
                     "elastic_constants": 0,
                     "reuss_average": 0,

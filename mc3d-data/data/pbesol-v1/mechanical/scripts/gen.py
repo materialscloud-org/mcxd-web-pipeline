@@ -14,6 +14,8 @@ from util import (
     parse_moduli,
     load_thermo_pw,
     load_matdyn,
+    load_scon,
+    calculate_c,
     check_base_json,
     aggregate_recursive
 )
@@ -30,6 +32,9 @@ GROUP_BORN_PSEUDODOJO = "paper/Born/PseudoDojo"
 GROUP_BORN_SSSP_07 = "paper/Born/SSSP/q0.7"
 GROUP_BORN_SSSP_05 = "paper/Born/SSSP/q0.5"
 GROUP_BORN_SSSP_03 = "paper/Born/SSSP/q0.3"
+
+ARCHIVE_EPW_SCREENING = "EPW-screening.aiida"
+GROUP_SCON = 'paper/workchains/scon'    
 
 def log(msg):
     with open(LOG_DST, "a") as f:
@@ -68,6 +73,27 @@ def main():
         help="The path to the `base.json` file to load. The script will load the data from this file.",
     )
 
+    parser.add_argument(
+        "-ls",
+        "--load_supercon",
+        action="store_true",
+        help="Load superconductivity data.",
+    )
+
+    parser.add_argument(
+        "-cc",
+        "--calculate_c",
+        action="store_true",
+        help="Load superconductivity data and calculate the c descriptor.",
+    )
+
+    parser.add_argument(
+        "-nb",
+        "--no_born",
+        action="store_true",
+        help="Do not load the born charges.",
+    )
+
     args = parser.parse_args()
 
     details = {}
@@ -98,14 +124,23 @@ def main():
             (GROUP_FD_SSSP, "SSSP")
             ]:
             load_thermo_pw(archive_profile, group, pseudo, parser=parse_moduli, details=details)
-        for group, pseudo, qdensity in [
-            (GROUP_BORN_PSEUDODOJO, "PseudoDojo", 0.5),
-            (GROUP_BORN_SSSP_07, "SSSP", 0.7),
-            (GROUP_BORN_SSSP_05, "SSSP", 0.5),
-            (GROUP_BORN_SSSP_03, "SSSP", 0.3)
-        ]:
-            load_matdyn(archive_profile, group, pseudo, qdensity, details=details)
-
+        if not args.no_born:
+            for group, pseudo, qdensity in [
+                (GROUP_BORN_PSEUDODOJO, "PseudoDojo", 0.5),
+                (GROUP_BORN_SSSP_07, "SSSP", 0.7),
+                (GROUP_BORN_SSSP_05, "SSSP", 0.5),
+                (GROUP_BORN_SSSP_03, "SSSP", 0.3)
+            ]:
+                load_matdyn(archive_profile, group, pseudo, qdensity, details=details)
+        if args.load_supercon:
+            AIIDA_PROFILE_NAME = Path(args.archive) / ARCHIVE_EPW_SCREENING
+            archive_profile = SqliteZipBackend.create_profile(AIIDA_PROFILE_NAME)
+            load_scon(
+                archive_profile,
+                GROUP_SCON,
+                log = log,
+                details = details,
+            ) 
     else:
         print(
             "You must provide one of the following parameters: --file, --profile or --archive.",
@@ -114,7 +149,11 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    if args.calculate_c:
+        calculate_c(details)
+
     check_base_json(details)
+
     # Save the base.json file
     with (OUTPUT_PATH / "base.json").open("w") as handle:
         dump_canonical_json(details, handle)

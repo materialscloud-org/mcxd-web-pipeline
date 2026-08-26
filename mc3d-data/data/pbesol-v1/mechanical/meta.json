@@ -33,6 +33,14 @@
       "name": "[Mechanical] Pettifor's ratio",
       "type": "float",
       "description": "The Pettifor's ratio."
+    },
+    {
+      "label": "c",
+      "data_path": "elastic.FD.PseudoDojo.VRH_average.c",
+      "data_label": "c",
+      "name": "[Mechanical] Ductile-superconductor index",
+      "type": "float",
+      "description": "The index for classifying materials as ductile superconductors."
     }
   ]
 }
