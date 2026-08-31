@@ -324,7 +324,11 @@ def load_thermo_pw(
             details_entry = {mc3d_id: {"elastic": {"FD": {pseudo: {}}}}}
             details_entry[mc3d_id]["elastic"]["FD"][pseudo]["structure_uuid"] = structure.uuid
             details_entry[mc3d_id]["elastic"]["FD"][pseudo]["workchain_uuid"] = workchain_node.uuid
+            details_entry[mc3d_id]["elastic"]["FD"][pseudo]["scf_parameters_uuid"] = workchain_node.inputs.thermo_pw.parameters.uuid
+            details_entry[mc3d_id]["elastic"]["FD"][pseudo]["scf_kpoints_uuid"] = workchain_node.base.links.get_outgoing(link_label_filter='iteration_01').first().node.inputs.kpoints.uuid
+            
             elastic_constants = workchain_node.outputs.elastic_constants.get_array("elastic_constants")
+            
             if parser:
                 output_parameters = parser(workchain_node.outputs.retrieved.get_object_content('aiida.out'))
             else:
@@ -437,6 +441,11 @@ def load_matdyn(
 
             elastic_constants = np.array(output_elastic_properties.get("elastic_constants"))
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["elastic_constants"] = elastic_constants.tolist()
+
+            # details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]['qpoints_uuid'] = workchain_node.inputs.matdyn.force_constants.creator.inputs.parent_folder.creator.inputs.qpoints.uuid
+            # details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]['scf_parameters_uuid'] = workchain_node.inputs.matdyn.force_constants.creator.inputs.parent_folder.creator.inputs.parent_folder.creator.inputs.parameters.uuid
+            # details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]['scf_kpoints_uuid'] = workchain_node.inputs.matdyn.force_constants.creator.inputs.parent_folder.creator.inputs.parent_folder.creator.inputs.kpoints.uuid
+
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["voigt_average"] = output_elastic_properties.get("voigt_average")
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["reuss_average"] = output_elastic_properties.get("reuss_average")
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["VRH_average"] = output_elastic_properties.get("VRH_average")
@@ -588,14 +597,14 @@ def calculate_c(details, log=print):
         for average in averages:
             try:
                 elastic_average = fd_pseudodojo[average]
-                pettifor_ratio = float(elastic_average["pettifor_ratio"])
+                modified_pettifor_ratio = float(elastic_average["modified_pettifor_ratio"])
                 pugh_ratio = float(elastic_average["pugh_ratio"])
             except (KeyError, TypeError, ValueError):
                 continue
 
-            if np.isfinite((iso_tc, pettifor_ratio, pugh_ratio)).all():
+            if np.isfinite((iso_tc, modified_pettifor_ratio, pugh_ratio)).all():
                 values_by_average[average].append(
-                    (mc3d_id, elastic_average, iso_tc, pettifor_ratio, pugh_ratio)
+                    (mc3d_id, elastic_average, iso_tc, modified_pettifor_ratio, pugh_ratio)
                 )
 
     for average, values in values_by_average.items():
@@ -603,20 +612,26 @@ def calculate_c(details, log=print):
             continue
 
         iso_tc_average = np.mean([value[2] for value in values])
-        pettifor_average = np.mean([value[3] for value in values])
+        modified_pettifor_average  = np.mean([value[3] for value in values])
         pugh_average = np.mean([value[4] for value in values])
 
-        if np.isclose((iso_tc_average, pettifor_average, pugh_average), 0.0).any():
+        log(
+            f"average of {len(values)} isotropic Tc: {iso_tc_average}, "
+            f"average of {average} {len(values)} pettifor ratio: {modified_pettifor_average}, "
+            f"average of {average} {len(values)} pugh ratio: {pugh_average}"
+        )
+        
+        if np.isclose((iso_tc_average, modified_pettifor_average, pugh_average), 0.0).any():
             log(
                 f"SKIPPING c calculation for {average}: "
                 "at least one reference average is zero."
             )
             continue
 
-        for _, elastic_average, iso_tc, pettifor_ratio, pugh_ratio in values:
+        for _, elastic_average, iso_tc, modified_pettifor_ratio, pugh_ratio in values:
             elastic_average["c"] = float(
                 iso_tc / iso_tc_average
-                + pettifor_ratio / pettifor_average
+                + modified_pettifor_ratio / modified_pettifor_average
                 - pugh_ratio / pugh_average
             )
 
