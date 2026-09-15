@@ -416,9 +416,11 @@ def load_matdyn(
                 continue
 
             details_entry = {mc3d_id: {"elastic": {"Born": {pseudo: {qdensity: {}}}}}}
-
+            
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["pseudo"] = 'PBE' if pseudo == 'PseudoDojo' else 'PBEsol'
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["workchain_uuid"] = workchain_node.uuid
+            details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["scf_parameters_uuid"] = workchain_node.inputs.matdyn.force_constants.creator.inputs.parent_folder.creator.caller.inputs.ph.parent_folder.creator.inputs.parameters.uuid
+            details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["scf_kpoints_uuid"] = workchain_node.inputs.matdyn.force_constants.creator.inputs.parent_folder.creator.caller.inputs.ph.parent_folder.creator.inputs.kpoints.uuid
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["qpoints_uuid"] = workchain_node.inputs.matdyn.force_constants.creator.inputs.parent_folder.creator.inputs.qpoints.uuid
 
             # The output ports of MatdynCalculation are actually exposed to MatdynBaseWorkChain but sometimes

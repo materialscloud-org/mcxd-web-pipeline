@@ -153,6 +153,7 @@ The elastic moduli, elastic constants, and hardness values are expressed in GPa,
 | `pettifor_ratio` | $r^{\mathrm{Pett}}$ | Pettifor ratio | dimensionless | No unit should be displayed. |
 | `modified_pettifor_ratio` | $\widetilde{r}^{\mathrm{Pett}}$ | Modified Pettifor ratio | dimensionless | Modified form of the Pettifor descriptor. |
 | `debye_temp` | $\Theta^{\mathrm{D}}$ | Debye temperature | K | Estimated from the elastic and acoustic properties. |
+| `longitudinal_modulus_L` | $L$ | Longitudinal modulus | GPa |  |
 | `melting_temp` | $T^{\mathrm{m}}$ | Melting temperature | K | Estimated melting temperature. |
 | `min_kappa` | $\kappa^{\min}$ | Minimum thermal conductivity | $W / (m \cdot K)$ | Estimated minimum lattice thermal conductivity. |
 | `sound_vel_LA` | $v^{\mathrm{LA}}$ | Longitudinal acoustic sound velocity | $km / s$ | Longitudinal acoustic mode. |
