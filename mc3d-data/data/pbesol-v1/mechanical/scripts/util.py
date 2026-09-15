@@ -322,6 +322,7 @@ def load_thermo_pw(
                 continue
 
             details_entry = {mc3d_id: {"elastic": {"FD": {pseudo: {}}}}}
+            details_entry[mc3d_id]["elastic"]["FD"][pseudo]["pseudo"] = 'PBE' if pseudo == 'PseudoDojo' else 'PBEsol'
             details_entry[mc3d_id]["elastic"]["FD"][pseudo]["structure_uuid"] = structure.uuid
             details_entry[mc3d_id]["elastic"]["FD"][pseudo]["workchain_uuid"] = workchain_node.uuid
             details_entry[mc3d_id]["elastic"]["FD"][pseudo]["scf_parameters_uuid"] = workchain_node.inputs.thermo_pw.parameters.uuid
@@ -415,7 +416,10 @@ def load_matdyn(
                 continue
 
             details_entry = {mc3d_id: {"elastic": {"Born": {pseudo: {qdensity: {}}}}}}
+
+            details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["pseudo"] = 'PBE' if pseudo == 'PseudoDojo' else 'PBEsol'
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["workchain_uuid"] = workchain_node.uuid
+            details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]["qpoints_uuid"] = workchain_node.inputs.matdyn.force_constants.creator.inputs.parent_folder.creator.inputs.qpoints.uuid
 
             # The output ports of MatdynCalculation are actually exposed to MatdynBaseWorkChain but sometimes
             # it is not, so we need to find the actual MatdynCalculation node.
