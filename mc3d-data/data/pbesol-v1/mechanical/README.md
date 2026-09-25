@@ -1,38 +1,48 @@
 # The `mc3d/pbesol-v1/mechanical` Dataset Generation Script
 
-This code `scripts/gen.py` is used to extract the results from mechanical database and generate the `base.json` file for the deploy on MC3D discover webpage.
+This code `scripts/gen.py` extracts mechanical results and generates a derived `base.json` for the MC3D Discover deployment.
 
 ### 📋 **Prerequisites**
 
-Before running the script, you will need two things:
+Before running the script, you will need:
 
 1. **AiiDA Environment**: This script requires a working AiiDA environment (e.g., with `aiida-core` installed).
 
-2. **Data Archives**: You must download the required archive files from the [Material Cloud Archive](https://doi.org/10.24435/materialscloud:7a-cx).
+2. **Mechanical archive**: Download `elastic.aiida` from the [mechanical Materials Cloud archive](https://doi.org/10.24435/materialscloud:7a-cx).
+
+3. **Superconductivity archive**: This dataset leans on the [MC3D superconductivity dataset](https://doi.org/10.24435/materialscloud:n9-a7). Download its `EPW-screening.aiida` archive as well, or import both datasets into the same AiiDA profile.
 
 ## 🚀 Usage
 
-The scripts/gen.py script offers two methods for loading the data, depending on your setup.
+The archive- and profile-based builds always load superconductivity data and calculate the `c` descriptor. It fails before writing an output file if that data is unavailable.
+
+### Minimal archive-based build
+
+Pass both required AiiDA archives explicitly:
+
+```bash
+python3 scripts/gen.py \
+  --elastic-file "/path/to/elastic.aiida" \
+  --supercon-file "/path/to/EPW-screening.aiida" \
+  --output /tmp/mechanical-base.json
+```
+
+The generated file is intentionally written to the explicit `--output` path. Existing files are protected; use `--force` only when deliberately replacing a reviewed output.
 
 ### **Option 1: Using an AiiDA Profile**
 
-If you have already imported the .aiida archives into an AiiDA profile, you can specify the profile name directly:
+If both datasets have already been imported into one AiiDA profile, specify that profile directly:
 
 ```bash
-python scripts/gen.py --profile "YOUR_PROFILE_NAME"
+python3 scripts/gen.py --profile "YOUR_PROFILE_NAME" --output /tmp/mechanical-base.json
 ```
 
-### **Option 2: Loading from Local Archive Files**
-
-If you have the .aiida files saved in a local directory, you can provide the path to that directory. The script will find and load them using `SqliteZipBackend`.
-
-```bash
-python scripts/gen.py --archive "/path/to/your/archives"
-```
 
 ## 💾 Output
 
-Upon successful execution, the script will generate a `base.json` file in the working directory. This file contains all the detailed calculation data extracted from the archives.
+`base.json` is derived data, not a source of record. Review the generated file before intentionally replacing the versioned deployment file. The script never writes `meta.json`.
+
+`meta.json` is the small, versioned frontend schema that declares the indexed columns. It cannot be inferred safely from archive contents, so use the checked-in `meta.json` for this dataset and change it only when the frontend schema itself changes. Recreating the deployment inputs therefore means generating `base.json` with this script and retaining the matching versioned `meta.json`.
 
 The base.json file has the following structure for each material:
 

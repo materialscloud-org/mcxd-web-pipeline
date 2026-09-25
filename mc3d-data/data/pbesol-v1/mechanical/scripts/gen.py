@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-"""
-This script is used to generate the base.json file from aiida archives QE-screening.aiida and EPW-screening.aiida.
-"""
+"""Generate mechanical ``base.json`` data from elastic and supercon archives."""
 
 import argparse
 import json
@@ -17,15 +15,10 @@ from util import (
     load_scon,
     calculate_c,
     check_base_json,
-    aggregate_recursive
 )
 
-OUTPUT_PATH = Path().resolve().parent
-LOG_DST = Path().resolve() / "log"
+SUPERCON_ARCHIVE_URL = "https://doi.org/10.24435/materialscloud:n9-a7"
 
-# 1. QE-screening.aiida
-# This archive contains all the information for the interactive phonon section.
-ARCHIVE_ELASTIC       = "elastic.aiida"
 GROUP_FD_PSEUDODOJO   = "paper/FD/PseudoDojo"
 GROUP_FD_SSSP         = "paper/FD/SSSP"
 GROUP_BORN_PSEUDODOJO = "paper/Born/PseudoDojo"
@@ -33,18 +26,14 @@ GROUP_BORN_SSSP_07 = "paper/Born/SSSP/q0.7"
 GROUP_BORN_SSSP_05 = "paper/Born/SSSP/q0.5"
 GROUP_BORN_SSSP_03 = "paper/Born/SSSP/q0.3"
 
-ARCHIVE_EPW_SCREENING = "EPW-screening.aiida"
 GROUP_SCON = 'paper/workchains/scon'    
 
 def log(msg):
-    with open(LOG_DST, "a") as f:
-        f.write(str(msg) + "\n")
-
-
+    print(msg, file=sys.stderr)
 
 def main():
     parser = argparse.ArgumentParser(
-        description="A script to generate the base.json file from aiida archives QE-screening.aiida and EPW-screening.aiida."
+        description="Generate mechanical base data, including its superconductivity-derived descriptor."
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
@@ -58,11 +47,11 @@ def main():
     )
 
     group.add_argument(
-        "-a",
-        "--archive",
-        metavar="ARCHIVE_PATH",
-        type=str,
-        help="The path to the AiiDA archive file (.aiida). The script will import data from this file.",
+        "-e",
+        "--elastic-file",
+        metavar="ARCHIVE_FILE",
+        type=Path,
+        help="Path to the mechanical elastic.aiida archive.",
     )
 
     group.add_argument(
@@ -74,17 +63,27 @@ def main():
     )
 
     parser.add_argument(
-        "-ls",
-        "--load_supercon",
-        action="store_true",
-        help="Load superconductivity data.",
+        "--supercon-file",
+        metavar="ARCHIVE_FILE",
+        type=Path,
+        help=(
+            "Path to the required superconductivity EPW-screening.aiida archive. "
+            f"Download it from {SUPERCON_ARCHIVE_URL}."
+        ),
     )
 
     parser.add_argument(
-        "-cc",
-        "--calculate_c",
+        "--output",
+        metavar="BASE_JSON",
+        type=Path,
+        required=True,
+        help="New path for the generated base.json. Existing files are never overwritten without --force.",
+    )
+
+    parser.add_argument(
+        "--force",
         action="store_true",
-        help="Load superconductivity data and calculate the c descriptor.",
+        help="Allow --output to overwrite an existing file.",
     )
 
     parser.add_argument(
@@ -96,29 +95,52 @@ def main():
 
     args = parser.parse_args()
 
+    if args.supercon_file and not args.elastic_file:
+        parser.error("--supercon-file can only be used together with --elastic-file.")
+    if args.elastic_file and not args.supercon_file:
+        parser.error(
+            "--elastic-file requires --supercon-file. "
+            f"Download EPW-screening.aiida from {SUPERCON_ARCHIVE_URL}."
+        )
+
+    output_path = args.output.resolve()
+    if not output_path.parent.is_dir():
+        parser.error(f"Output directory does not exist: {output_path.parent}")
+    if output_path.exists() and not args.force:
+        parser.error(f"Refusing to overwrite {output_path}. Use --force only after reviewing the file.")
+
     details = {}
 
     if args.file:
         with open(args.file, "r") as handle:
             details = json.load(handle)
     elif args.profile:
-        archive_profile = SqliteZipBackend.create_profile(args.profile)
         for group, pseudo in [
             (GROUP_FD_PSEUDODOJO, "PseudoDojo"), 
             (GROUP_FD_SSSP, "SSSP")
             ]:
-            load_thermo_pw(archive_profile, group, pseudo, parser=parse_moduli, details=details)
+            load_thermo_pw(args.profile, group, pseudo, parser=parse_moduli, details=details)
         for group, pseudo, qdensity in [
             (GROUP_BORN_PSEUDODOJO, "PseudoDojo", 0.5),
             (GROUP_BORN_SSSP_07, "SSSP", 0.7),
             (GROUP_BORN_SSSP_05, "SSSP", 0.5),
             (GROUP_BORN_SSSP_03, "SSSP", 0.3)
         ]:
-            load_matdyn(archive_profile, group, pseudo, qdensity, details=details)
+            load_matdyn(args.profile, group, pseudo, qdensity, details=details)
+        supercon_count = load_scon(args.profile, GROUP_SCON, log=log, details=details)
 
-    elif args.archive:
-        AIIDA_PROFILE_NAME = Path(args.archive) / ARCHIVE_ELASTIC
-        archive_profile = SqliteZipBackend.create_profile(AIIDA_PROFILE_NAME)
+    elif args.elastic_file:
+        elastic_archive = args.elastic_file
+        supercon_archive = args.supercon_file
+        if not elastic_archive.is_file():
+            parser.error(f"Missing elastic archive: {elastic_archive}")
+        if not supercon_archive.is_file():
+            parser.error(
+                f"Missing superconductivity archive: {supercon_archive}. "
+                f"Download EPW-screening.aiida from {SUPERCON_ARCHIVE_URL}."
+            )
+
+        archive_profile = SqliteZipBackend.create_profile(elastic_archive)
         for group, pseudo in [
             (GROUP_FD_PSEUDODOJO, "PseudoDojo"), 
             (GROUP_FD_SSSP, "SSSP")
@@ -132,30 +154,32 @@ def main():
                 (GROUP_BORN_SSSP_03, "SSSP", 0.3)
             ]:
                 load_matdyn(archive_profile, group, pseudo, qdensity, details=details)
-        if args.load_supercon:
-            AIIDA_PROFILE_NAME = Path(args.archive) / ARCHIVE_EPW_SCREENING
-            archive_profile = SqliteZipBackend.create_profile(AIIDA_PROFILE_NAME)
-            load_scon(
-                archive_profile,
-                GROUP_SCON,
-                log = log,
-                details = details,
-            ) 
+        archive_profile = SqliteZipBackend.create_profile(supercon_archive)
+        supercon_count = load_scon(
+            archive_profile,
+            GROUP_SCON,
+            log=log,
+            details=details,
+        )
     else:
         print(
-            "You must provide one of the following parameters: --file, --profile or --archive.",
+            "You must provide one of the following parameters: --file, --profile or --elastic-file.",
             file=sys.stderr,
         )
         parser.print_help()
         sys.exit(1)
 
-    if args.calculate_c:
-        calculate_c(details)
+    if not args.file and not supercon_count:
+        parser.error(
+            "No superconductivity data was found in the supplied AiiDA source. "
+            f"Import or supply EPW-screening.aiida from {SUPERCON_ARCHIVE_URL}."
+        )
+
+    calculate_c(details)
 
     check_base_json(details)
 
-    # Save the base.json file
-    with (OUTPUT_PATH / "base.json").open("w") as handle:
+    with output_path.open("w") as handle:
         dump_canonical_json(details, handle)
 
     log("Done!")

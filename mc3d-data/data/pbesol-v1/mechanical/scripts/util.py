@@ -576,6 +576,8 @@ def load_scon(
             count_skipped += 1
             continue
 
+    return count_successful
+
 
 def calculate_c(details, log=print):
     """Calculate and add the Pugh--Pettifor superconducting descriptor.
