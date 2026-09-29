@@ -23,29 +23,36 @@ from mcxd_web_pipeline.utils import IDS_PATH, get_mc3d_id
 from tqdm import tqdm
 
 
+def _as_plain_dict(props):
+    """Return ``props`` as a plain dict (handles AiiDA ``Dict`` nodes)."""
+    if hasattr(props, "get_dict"):
+        return props.get_dict()
+    return props
+
+
 modulus_pattern = {
     "fd": {
         "elastic_constants": [],
-        "Voigt_average": {},
-        "Reuss_average": {},
+        "voigt_average": {},
+        "reuss_average": {},
         "VRH_average": {},
     },
     "q0.3": {
         "elastic_constants": [],
-        "Voigt_average": {},
-        "Reuss_average": {},
+        "voigt_average": {},
+        "reuss_average": {},
         "VRH_average": {},
     },
     "q0.5": {
         "elastic_constants": [],
-        "Voigt_average": {},
-        "Reuss_average": {},
+        "voigt_average": {},
+        "reuss_average": {},
         "VRH_average": {},
     },
     "q0.7": {
         "elastic_constants": [],
-        "Voigt_average": {},
-        "Reuss_average": {},
+        "voigt_average": {},
+        "reuss_average": {},
         "VRH_average": {},
     },
 }
@@ -362,10 +369,10 @@ def load_thermo_pw(
                 details_entry[mc3d_id]["elastic"]["FD"][pseudo]["elastic_constants"] = (
                     elastic_constants / 10
                 ).tolist()
-                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["Voigt_average"] = (
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["voigt_average"] = (
                     kbar_to_gpa(rename_modulus(output_parameters["moduli"]["voigt"]))
                 )
-                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["Reuss_average"] = (
+                details_entry[mc3d_id]["elastic"]["FD"][pseudo]["reuss_average"] = (
                     kbar_to_gpa(rename_modulus(output_parameters["moduli"]["reuss"]))
                 )
                 details_entry[mc3d_id]["elastic"]["FD"][pseudo]["VRH_average"] = (
@@ -378,7 +385,7 @@ def load_thermo_pw(
                     rename_modulus(output_parameters["debye"])
                 )
 
-                for average in ["Voigt_average", "Reuss_average", "VRH_average"]:
+                for average in ["voigt_average", "reuss_average", "VRH_average"]:
                     bulk_modulus = details_entry[mc3d_id]["elastic"]["FD"][pseudo][
                         average
                     ]["bulk_modulus"]
@@ -510,9 +517,8 @@ def load_matdyn(
                     )
                     output_elastic_properties = yaml.safe_load(matdyn_elastic_yaml)
 
-            elastic_constants = np.array(
-                output_elastic_properties.get("elastic_constants")
-            )
+            props = _as_plain_dict(output_elastic_properties)
+            elastic_constants = np.array(props.get("elastic_constants"))
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][
                 "elastic_constants"
             ] = elastic_constants.tolist()
@@ -521,16 +527,25 @@ def load_matdyn(
             # details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]['scf_parameters_uuid'] = workchain_node.inputs.matdyn.force_constants.creator.inputs.parent_folder.creator.inputs.parent_folder.creator.inputs.parameters.uuid
             # details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity]['scf_kpoints_uuid'] = workchain_node.inputs.matdyn.force_constants.creator.inputs.parent_folder.creator.inputs.parent_folder.creator.inputs.kpoints.uuid
 
+            try:
+                voigt = props["voigt_average"]
+                reuss = props["reuss_average"]
+                vrh = props["VRH_average"]
+            except KeyError as exc:
+                raise KeyError(
+                    f"output_elastic_properties missing {exc} "
+                    f"(available keys: {sorted(props.keys())})"
+                ) from exc
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][
-                "Voigt_average"
-            ] = output_elastic_properties.get("Voigt_average")
+                "voigt_average"
+            ] = voigt
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][
-                "Reuss_average"
-            ] = output_elastic_properties.get("Reuss_average")
+                "reuss_average"
+            ] = reuss
             details_entry[mc3d_id]["elastic"]["Born"][pseudo][qdensity][
                 "VRH_average"
-            ] = output_elastic_properties.get("VRH_average")
-            for average in ["Voigt_average", "Reuss_average", "VRH_average"]:
+            ] = vrh
+            for average in ["voigt_average", "reuss_average", "VRH_average"]:
                 bulk_modulus = details_entry[mc3d_id]["elastic"]["Born"][pseudo][
                     qdensity
                 ][average]["bulk_modulus"]
@@ -711,7 +726,7 @@ def calculate_c(details, log=print):
     included in that average's reference means and receive a descriptor value.
     ``details`` is updated in place and returned for convenience.
     """
-    averages = ("Voigt_average", "Reuss_average", "VRH_average")
+    averages = ("voigt_average", "reuss_average", "VRH_average")
     values_by_average = {average: [] for average in averages}
 
     for mc3d_id, detail in details.items():
@@ -814,22 +829,22 @@ def check_base_json(details, log=print):
                     "0.7": {
                         "VRH_average": 0,
                         "elastic_constants": 0,
-                        "Reuss_average": 0,
-                        "Voigt_average": 0,
+                        "reuss_average": 0,
+                        "voigt_average": 0,
                         "workchain_uuid": 0,
                     },
                     "0.5": {
                         "VRH_average": 0,
                         "elastic_constants": 0,
-                        "Reuss_average": 0,
-                        "Voigt_average": 0,
+                        "reuss_average": 0,
+                        "voigt_average": 0,
                         "workchain_uuid": 0,
                     },
                     "0.3": {
                         "VRH_average": 0,
                         "elastic_constants": 0,
-                        "Reuss_average": 0,
-                        "Voigt_average": 0,
+                        "reuss_average": 0,
+                        "voigt_average": 0,
                         "workchain_uuid": 0,
                     },
                 },
@@ -837,8 +852,8 @@ def check_base_json(details, log=print):
                     "0.5": {
                         "VRH_average": 0,
                         "elastic_constants": 0,
-                        "Reuss_average": 0,
-                        "Voigt_average": 0,
+                        "reuss_average": 0,
+                        "voigt_average": 0,
                         "workchain_uuid": 0,
                     }
                 },
@@ -847,18 +862,18 @@ def check_base_json(details, log=print):
                 "SSSP": {
                     "VRH_average": 0,
                     "elastic_constants": 0,
-                    "Reuss_average": 0,
+                    "reuss_average": 0,
                     "structure_uuid": 0,
-                    "Voigt_average": 0,
+                    "voigt_average": 0,
                 },
                 "PseudoDojo": {
                     "iso_tc": 0,
                     "allen_dynes_tc": 0,
                     "VRH_average": 0,
                     "elastic_constants": 0,
-                    "Reuss_average": 0,
+                    "reuss_average": 0,
                     "structure_uuid": 0,
-                    "Voigt_average": 0,
+                    "voigt_average": 0,
                 },
             },
         }
@@ -894,7 +909,7 @@ def compare(dict1, dict2, sources=None):
     compare_dict = {
         "sources": [],
         "elastic_constants": [],
-        "Voigt_average": {
+        "voigt_average": {
             "bulk_modulus": [],
             "shear_modulus": [],
             "young_modulus": [],
@@ -903,7 +918,7 @@ def compare(dict1, dict2, sources=None):
             "pettifor_ratio": [],
             "modified_pettifor_ratio": [],
         },
-        "Reuss_average": {
+        "reuss_average": {
             "bulk_modulus": [],
             "shear_modulus": [],
             "young_modulus": [],
@@ -927,7 +942,7 @@ def compare(dict1, dict2, sources=None):
         compare_dict["elastic_constants"].append(
             [dict1[source]["elastic_constants"], dict2[source]["elastic_constants"]]
         )
-        for average in ["Voigt_average", "Reuss_average", "VRH_average"]:
+        for average in ["voigt_average", "reuss_average", "VRH_average"]:
             for modulus in [
                 "bulk_modulus",
                 "shear_modulus",
@@ -1097,12 +1112,12 @@ def check_stability_matdyn_base(
 
 def compare_two_keys(dict, key1, key2):
     values = {
-        "Voigt_average": [],
-        "Reuss_average": [],
+        "voigt_average": [],
+        "reuss_average": [],
         "VRH_average": [],
     }
     for source in dict.keys():
-        for average in ["Voigt_average", "Reuss_average", "VRH_average"]:
+        for average in ["voigt_average", "reuss_average", "VRH_average"]:
             try:
                 values[average].append(
                     [dict[source][average][key1], dict[source][average][key2]]

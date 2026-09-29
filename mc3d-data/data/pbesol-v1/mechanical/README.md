@@ -8,7 +8,7 @@ Before running the script, you will need:
 
 1. **AiiDA Environment**: This script requires a working AiiDA environment (e.g., with `aiida-core` installed).
 
-2. **Mechanical archive**: Download `elastic.aiida` from the [mechanical Materials Cloud archive](https://doi.org/10.24435/materialscloud:7a-cx).
+2. **Mechanical archive**: Download `elastic.aiida` from the [mechanical Materials Cloud archive](https://doi.org/10.24435/materialscloud:3m-0e).
 
 3. **Superconductivity archive**: This dataset leans on the [MC3D superconductivity dataset](https://doi.org/10.24435/materialscloud:n9-a7). Download its `EPW-screening.aiida` archive as well, or import both datasets into the same AiiDA profile.
 
