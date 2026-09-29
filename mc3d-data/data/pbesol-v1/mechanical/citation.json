@@ -1,0 +1,26 @@
+{
+  "YZhangMechanical2026": {
+    "authors": ["Y. Zhang", "S. Poncé"],
+    "authorsShort": "Zhang et al.",
+    "associatedDois": [
+      {
+        "type": "data",
+        "year": 2026,
+        "doi": "10.24435/materialscloud:7a-cx",
+        "journal": "Materials Cloud Archive",
+        "journalRef": "Materials Cloud Archive, 2026.126",
+        "journalRefShort": "Materials Cloud Archive",
+        "title": "In search of novel ductile superconductors"
+      },
+      {
+        "type": "preprint",
+        "year": 2026,
+        "doi": "10.48550/arXiv.2608.04789",
+        "journal": "arXiv",
+        "journalRef": "arXiv:2608.04789v2 [cond-mat.supr-con]",
+        "journalRefShort": "arXiv:2608.04789",
+        "title": "In search of novel ductile superconductors"
+      }
+    ]
+  }
+}
