@@ -1,0 +1,45 @@
+{
+  "MBercxSupercon25": {
+    "authors": [
+      "M. Bercx",
+      "S. Poncé",
+      "Y. Zhang",
+      "G. Trezza",
+      "A. G. Ghezeljehmeidan",
+      "L. Bastonero",
+      "J. Qiao",
+      "F. O. von Rohr",
+      "G. Pizzi"
+    ],
+    "authorsShort": "Bercx et al.",
+    "associatedDois": [
+      {
+        "type": "paper",
+        "year": 2025,
+        "doi": "10.1103/sb28-fjc9",
+        "journal": "PRX Energy",
+        "journalRef": "PRX Energy 4, 033012 (2025)",
+        "journalRefShort": "PRX Energy 4, 033012",
+        "title": "Charting the landscape of Bardeen-Cooper-Schrieffer superconductors in experimentally known compounds"
+      },
+      {
+        "type": "data",
+        "year": 2025,
+        "doi": "10.24435/materialscloud:c2-ap",
+        "journal": "Materials Cloud Archive",
+        "journalRef": "Materials Cloud Archive, 2025.175",
+        "journalRefShort": "Materials Cloud Archive",
+        "title": "Charting the landscape of Bardeen–Cooper–Schrieffer superconductors in experimentally known compounds"
+      },
+      {
+        "type": "preprint",
+        "year": 2025,
+        "doi": "10.48550/arXiv.2503.10943",
+        "journal": "arXiv",
+        "journalRef": "arXiv:2503.10943 [cond-mat.supr-con]",
+        "journalRefShort": "arXiv:2503.10943",
+        "title": "Charting the landscape of Bardeen-Cooper-Schrieffer superconductors in experimentally known compounds"
+      }
+    ]
+  }
+}
