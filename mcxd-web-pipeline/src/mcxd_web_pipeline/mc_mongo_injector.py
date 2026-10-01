@@ -14,12 +14,44 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from pymongo import MongoClient
+from pymongo import MongoClient, UpdateOne
 
 from mcxd_web_pipeline.config import CONFIG, REPO_ROOT
 from mcxd_web_pipeline.mc3d.pbesol_v1.supercon.phonon_vis import (
     populate_supercon_phonon_vis,
 )
+
+
+def parse_manifest_source(member: str) -> dict:
+    """Parse a ``duplicate_family`` member (``db|version|id``) into a source entry."""
+    database, version, source_id = member.split("|")
+    return {
+        "database": database.upper(),
+        "id": source_id,
+        "version": version,
+        "info": None,
+    }
+
+
+def merge_equivalent_sources(existing: list, family: list) -> list:
+    """Append missing ``duplicate_family`` members to a ``source`` array.
+
+    Entries already present (matched on database/id/version) are kept as-is,
+    so the golden-structure source with its ``info`` is never overwritten.
+    """
+    seen = {
+        (s.get("database"), s.get("id"), s.get("version"))
+        for s in existing
+        if isinstance(s, dict)
+    }
+    merged = list(existing)
+    for member in family:
+        parsed = parse_manifest_source(member)
+        key = (parsed["database"], parsed["id"], parsed["version"])
+        if key not in seen:
+            seen.add(key)
+            merged.append(parsed)
+    return merged
 
 
 def get_data_folder(mcxd_type: str) -> Path:
@@ -99,6 +131,8 @@ class McMongoInjector:
         Relatively fast, can be done on each update.
         """
         for method_path in get_data_folder(self.mcxd_type).iterdir():
+            if not method_path.is_dir():
+                continue
             method_ = method_path.name
             if method != "all" and method_ != method:
                 continue
@@ -113,6 +147,8 @@ class McMongoInjector:
 
             # Extra contributions
             for contrib_path in method_path.iterdir():
+                if not contrib_path.is_dir():
+                    continue
                 contrib = contrib_path.name
                 if contrib == "core":
                     continue
@@ -125,6 +161,65 @@ class McMongoInjector:
                 self._inject_base_json(f"{method_}_{contrib}_base", contrib_base_path)
                 self._inject_meta_json(f"{method_}_meta", contrib, contrib_meta_path)
                 self.dataset_labels[method_].append(contrib)
+
+    def populate_equivalent_sources(self, method: str = "all"):
+        """Append ``manifest.json`` duplicate families to base-doc `source` arrays.
+
+        For each ``{method}_*_base`` document with a ``source`` list, family
+        members from the manifest that are not already present are appended.
+        Documents without a ``source`` array, or ids absent from the manifest,
+        are left untouched. Re-running is safe (no duplicates created).
+        """
+        manifest_path = get_data_folder(self.mcxd_type) / "manifest.json"
+        if not manifest_path.is_file():
+            print(f"No manifest found at {manifest_path}, skipping.")
+            return
+
+        with manifest_path.open() as handle:
+            manifest = json.load(handle)
+
+        if method == "all":
+            methods = sorted(
+                p.name
+                for p in get_data_folder(self.mcxd_type).iterdir()
+                if p.is_dir()
+            )
+        else:
+            methods = [method]
+
+        for method_ in methods:
+            coll_names = [
+                name
+                for name in self.db.list_collection_names()
+                if name.startswith(f"{method_}_") and name.endswith("_base")
+            ]
+            for coll_name in coll_names:
+                coll = self.db[coll_name]
+                ops = []
+                n_checked = 0
+                for doc in coll.find({}, {"source": 1}):
+                    if not isinstance(doc.get("source"), list):
+                        continue
+                    entry = manifest.get(doc["_id"])
+                    if not entry:
+                        continue
+                    n_checked += 1
+                    merged = merge_equivalent_sources(
+                        doc["source"], entry.get("duplicate_family", [])
+                    )
+                    if len(merged) > len(doc["source"]):
+                        ops.append(
+                            UpdateOne(
+                                {"_id": doc["_id"]}, {"$set": {"source": merged}}
+                            )
+                        )
+                n_updated = 0
+                if ops:
+                    n_updated = coll.bulk_write(ops, ordered=False).modified_count
+                print(
+                    f"{coll_name}: checked {n_checked} docs, "
+                    f"extended sources for {n_updated}."
+                )
 
     #### Derived data from the base json files ####
 

@@ -39,6 +39,7 @@ def mc3d_run_base(method):
     """
     mmi = McMongoInjector(mcxd_type="mc3d")
     mmi.inject_file_data(method)
+    mmi.populate_equivalent_sources(method)
     mmi.populate_base_derived(method)
     mmi.populate_dataset_index()
 
