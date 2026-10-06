@@ -16,30 +16,37 @@ The scripts/gen.py script offers two methods for loading the data, depending on 
 
 ### **Option 1: Using an AiiDA Profile**
 
-If you have already imported the .aiida archives into an AiiDA profile, you can specify the profile name directly:
+If you have already imported the `.aiida` archives into an AiiDA profile, you can specify the profile name directly. Choose an explicit output path:
 
 ```bash
-python scripts/gen.py --profile "YOUR_PROFILE_NAME"
+python scripts/gen.py --profile "YOUR_PROFILE_NAME" --output /tmp/supercon-base.json
 ```
 
 ### **Option 2: Loading from Local Archive Files**
 
-If you have the two .aiida files (`QE-screening.aiida` and `EPW-screening.aiida`) saved in a local directory, you can provide the path to that directory. The script will find and load them using `SqliteZipBackend`.
+If you have the two `.aiida` files locally, provide each archive explicitly:
 
 ```bash
-python scripts/gen.py --archive "/path/to/your/archives"
+python scripts/gen.py \
+  --qe-file /path/to/QE-screening.aiida \
+  --epw-file /path/to/EPW-screening.aiida \
+  --output /tmp/supercon-base.json
 ```
 
 ## 💾 Output
 
-Upon successful execution, the script will generate a `base.json` file in the working directory. This file contains all the detailed calculation data extracted from the archives.
+Upon successful execution, the script will generate `base.json` at the path passed to `--output`. Existing files require `--force` to be overwritten. The output contains all detailed calculation data extracted from the archives.
 
-The base.json file has the following structure for each material:
+Every material has a `phonons` section. A `supercon` section is present only
+when superconductivity results are available; fields marked optional are
+present only when the corresponding calculation was completed.
 
 ```json
 {
     "mc3d-id": {
         "phonons": {
+            "ecut"                            : the wavefunction cutoff used by the SCF calculation,
+            "fermi_energy_coarse"             : the Fermi energy from the coarse-grid SCF calculation,
             "matdyn_retrieved_uuid"             : the retrieved folder for |q|=0.7 A^{-1},
             "matdyn_uuid"                       : the uuid that points to the MatdynBaseWorkChain for |q|=0.7 A^{-1},
             "matdyn_highest_phonon_frequency"   : the highest frequency (in meV) from the matdyn with highest available |q|,
@@ -61,15 +68,19 @@ The base.json file has the following structure for each material:
         "supercon": {
             "a2f_uuid"                    : the uuid of the a2f ArrayData,
             "allen_dynes_tc"              : transition temperature evaluated by Allen-Dynes formula,
-            "aniso_gap_function_uuid"     : the uuid of the anisotropic gap function ArrayData,
+            "aniso_gap_function_uuid"     : the uuid of the anisotropic gap function ArrayData (optional),
             "aniso_info": {
-                "Tc"                      : transition temperature evaluated by anisotropic Migdal-Eliashberg theory,
+                "Tc"                      : transition temperature evaluated by anisotropic Migdal-Eliashberg theory (optional),
                 "average_deltas"          : the average of the gap function,
                 "delta0"                  : the anisotropic gap at 0K,
                 "expo"                    : the exponent of fitted from the gap function,
                 "temps"                   : the anisotropic transition temperatures of the gap function,
             },
+            "cell_volume"                 : the unit-cell volume of the StructureData,
+            "ecut"                        : the wavefunction cutoff used by the SCF calculation,
+            "epw_aniso_uuid"              : the uuid of the EPW workchain used for the anisotropic calculation (optional),
             "epw_el_band_structure_uuid"  : the uuid of the epw el band structure,
+            "epw_final_uuid"              : the uuid of the final EPW calculation,
             "epw_ph_band_structure_uuid"  : the uuid of the epw ph band structure,
             "epw_uuid"                    : the uuid of the epw workchain,
             "fermi_energy_coarse"         : the fermi energy of the coarse grid,
@@ -103,6 +114,7 @@ The base.json file has the following structure for each material:
             },
             "scf_smearing"                : the smearing in the scf calculation in Wannier90 workchain,
             "smearing_q"                  : the smearing of phonon in EPW interpolation,
+            "smearing_w"                  : the `degaussw` smearing value from the final EPW input (optional),
             "space_group_number"          : the space group number of the structure,
             "structure_uuid"              : the uuid to the StructureData,
             "total_energy"                : the total energy in the scf calculation in Wannier90 workchain,

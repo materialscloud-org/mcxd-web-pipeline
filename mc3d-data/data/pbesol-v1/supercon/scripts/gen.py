@@ -22,12 +22,9 @@ from supercon import (
     load_scon,
 )
 
-OUTPUT_PATH = Path().resolve().parent
 LOG_DST = Path().resolve() / "log"
 
-# 1. QE-screening.aiida
-# This archive contains all the information for the interactive phonon section.
-ARCHIVE_QE_SCREENING = "QE-screening.aiida"
+# QE-screening.aiida contains all information for the interactive phonon section.
 GROUP_ELPH_03 = "paper/workchains/elph/q0.3"
 GROUP_ELPH_05 = "paper/workchains/elph/q0.5"
 GROUP_ELPH_07 = "paper/workchains/elph/q0.7"
@@ -35,9 +32,7 @@ GROUP_INTERACTIVE_PHONON_03 = "paper/workchains/phbands-qe/q0.3/matdyn"
 GROUP_INTERACTIVE_PHONON_05 = "paper/workchains/phbands-qe/q0.5/matdyn"
 GROUP_INTERACTIVE_PHONON_07 = "paper/workchains/phbands-qe/q0.7/matdyn"
 
-# 2. EPW-screening.aiida
-# This archive contains the information for the supercon section.
-ARCHIVE_EPW_SCREENING = "EPW-screening.aiida"
+# EPW-screening.aiida contains the information for the supercon section.
 GROUP_SCON = "paper/workchains/scon"
 GROUP_EPW = "paper/workchains/epw/stable"
 GROUP_RESUBMISSION_EPW = "paper/for-resubmission/epw"
@@ -298,11 +293,10 @@ def main():
     )
 
     group.add_argument(
-        "-a",
-        "--archive",
-        metavar="ARCHIVE_PATH",
-        type=str,
-        help="The path to the AiiDA archive file (.aiida). The script will import data from this file.",
+        "--qe-file",
+        metavar="ARCHIVE_FILE",
+        type=Path,
+        help="Path to the QE-screening.aiida archive.",
     )
 
     group.add_argument(
@@ -313,7 +307,41 @@ def main():
         help="The path to the `base.json` file to load. The script will load the data from this file.",
     )
 
+    parser.add_argument(
+        "--epw-file",
+        metavar="ARCHIVE_FILE",
+        type=Path,
+        help="Path to the EPW-screening.aiida archive.",
+    )
+
+    parser.add_argument(
+        "--output",
+        metavar="BASE_JSON",
+        type=Path,
+        required=True,
+        help="New path for the generated base.json. Existing files are never overwritten without --force.",
+    )
+
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Allow --output to overwrite an existing file.",
+    )
+
     args = parser.parse_args()
+
+    if args.epw_file and not args.qe_file:
+        parser.error("--epw-file can only be used together with --qe-file.")
+    if args.qe_file and not args.epw_file:
+        parser.error("--qe-file requires --epw-file.")
+
+    output_path = args.output.resolve()
+    if not output_path.parent.is_dir():
+        parser.error(f"Output directory does not exist: {output_path.parent}")
+    if output_path.exists() and not args.force:
+        parser.error(
+            f"Refusing to overwrite {output_path}. Use --force only after reviewing the file."
+        )
 
     details = {}
 
@@ -323,17 +351,20 @@ def main():
     elif args.profile:
         load_supercon(args.profile, details=details)
         load_visualize_phonon(args.profile, details=details)
-    elif args.archive:
-        AIIDA_PROFILE_NAME = Path(args.archive) / ARCHIVE_EPW_SCREENING
-        archive_profile = SqliteZipBackend.create_profile(AIIDA_PROFILE_NAME)
+    elif args.qe_file:
+        if not args.qe_file.is_file():
+            parser.error(f"Missing QE archive: {args.qe_file}")
+        if not args.epw_file.is_file():
+            parser.error(f"Missing EPW archive: {args.epw_file}")
+
+        archive_profile = SqliteZipBackend.create_profile(args.epw_file)
         load_supercon(archive_profile, details=details)
-        AIIDA_PROFILE_NAME = Path(args.archive) / ARCHIVE_QE_SCREENING
-        archive_profile = SqliteZipBackend.create_profile(AIIDA_PROFILE_NAME)
+        archive_profile = SqliteZipBackend.create_profile(args.qe_file)
         load_visualize_phonon(archive_profile, details=details)
 
     else:
         print(
-            "You must provide one of the following parameters: --file, --profile or --archive.",
+            "You must provide one of the following parameters: --file, --profile or --qe-file.",
             file=sys.stderr,
         )
         parser.print_help()
@@ -343,8 +374,7 @@ def main():
         detail["phonons"] = find_finest_qdensity(detail["phonons"])
 
     check_base_json(details)
-    # Save the base.json file
-    with (OUTPUT_PATH / "base.json").open("w") as handle:
+    with output_path.open("w") as handle:
         dump_canonical_json(details, handle)
 
     log("Done!")
