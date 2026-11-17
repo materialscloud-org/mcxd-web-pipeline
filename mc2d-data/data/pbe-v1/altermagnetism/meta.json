@@ -1,0 +1,49 @@
+{
+  "index-columns": [
+    {
+      "label": "self_consistent_hubbard_U_eV",
+      "data_path": "self_consistent_hubbard_U_eV",
+      "data_label": "am_hubbard_u",
+      "name": "[2D altermagnetism] Self-consistent Hubbard U",
+      "type": "float",
+      "unit": "eV",
+      "description": "Self-consistent Hubbard U for transition-metal d orbitals, obtained using density-functional perturbation theory."
+    },
+    {
+      "label": "maximum_splitting_meV",
+      "data_path": "maximum_splitting_meV",
+      "data_label": "am_max_splitting",
+      "name": "[2D altermagnetism] Maximum spin splitting",
+      "type": "float",
+      "unit": "meV",
+      "description": "Maximum spin splitting across the full 2D Brillouin zone over all calculated electronic states, regardless of occupation."
+    },
+    {
+      "label": "maximum_splitting_near_E_F_meV",
+      "data_path": "maximum_splitting_near_E_F_meV",
+      "data_label": "am_max_splitting_near_ef",
+      "name": "[2D altermagnetism] Maximum spin splitting near EF",
+      "type": "float",
+      "unit": "meV",
+      "description": "Maximum spin splitting associated with the highest occupied states in insulators or partially occupied states in metals. The insulating energy reference is the valence-band maximum."
+    },
+    {
+      "label": "band_gap_eV",
+      "data_path": "band_gap_eV",
+      "data_label": "am_band_gap",
+      "name": "[2D altermagnetism] Band gap",
+      "type": "float",
+      "unit": "eV",
+      "description": "Electronic band gap from the refined DFT+U calculation at the reported self-consistent Hubbard U."
+    },
+    {
+      "label": "delta_E_min_AM_NAM_meV_per_magnetic_atom",
+      "data_path": "delta_E_min_AM_NAM_meV_per_magnetic_atom",
+      "data_label": "am_energy_difference",
+      "name": "[2D altermagnetism] Magnetic energy difference",
+      "type": "float",
+      "unit": "meV/magnetic atom",
+      "description": "Energy difference (E_NAM,min - E_AM)/N_mag at the unrelaxed structure, in meV per magnetic atom. Positive values favor AM; negative values favor the lowest-energy competing non-altermagnetic collinear magnetic state."
+    }
+  ]
+}
