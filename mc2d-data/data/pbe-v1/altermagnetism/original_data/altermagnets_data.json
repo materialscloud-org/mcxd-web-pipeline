@@ -1,0 +1,464 @@
+[
+  {
+    "mc2d-ID": "mc2d-1823",
+    "chemical_formula": "Fe2SeTe",
+    "space_group_symbol": "P4mm",
+    "space_group_number": 99,
+    "self_consistent_hubbard_U_eV": 5.3,
+    "maximum_splitting_meV": 487,
+    "maximum_splitting_near_E_F_meV": 236,
+    "band_gap_eV": 2.42,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 311,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6
+    ],
+    "altermagnets_workchain_uuid": "c73dcf27-d3b6-4ac0-8fe7-68e39a728022",
+    "pw_bands_workchain_uuid": "2ded2ed1-09b2-450b-b73d-a76fefff6756"
+  },
+  {
+    "mc2d-ID": "mc2d-2502",
+    "chemical_formula": "CoBrO",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 5.9,
+    "maximum_splitting_meV": 330,
+    "maximum_splitting_near_E_F_meV": 66,
+    "band_gap_eV": 1.31,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 38,
+    "competing_magnetic_state": "AFM",
+    "AM_for_U_values_eV": [
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "cf69bc9e-44e7-4338-9e52-a0abf9bcecab",
+    "pw_bands_workchain_uuid": "98470ff3-8a95-40ec-8820-54b140e4c276"
+  },
+  {
+    "mc2d-ID": "mc2d-1726",
+    "chemical_formula": "CuH8N2(OF2)2",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 5.2,
+    "maximum_splitting_meV": 317,
+    "maximum_splitting_near_E_F_meV": 28,
+    "band_gap_eV": 2.84,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": -3,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "7c90c06b-266b-4cfd-a224-f2966cc195be",
+    "pw_bands_workchain_uuid": "f081900e-d9f2-4e06-a9fa-e122bcb4af6b"
+  },
+  {
+    "mc2d-ID": "mc2d-2545",
+    "chemical_formula": "Fe2Si2SbO9",
+    "space_group_symbol": "Cm",
+    "space_group_number": 8,
+    "self_consistent_hubbard_U_eV": 6.3,
+    "maximum_splitting_meV": 294,
+    "maximum_splitting_near_E_F_meV": 292,
+    "band_gap_eV": 0.0,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 22,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "2c9fe0b8-1c05-4e04-8050-60845dad058e",
+    "pw_bands_workchain_uuid": "7afa6445-3e07-4bed-a4a7-8c43b5866f54"
+  },
+  {
+    "mc2d-ID": "mc2d-1679",
+    "chemical_formula": "NiH2C2N3Cl",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 7.9,
+    "maximum_splitting_meV": 290,
+    "maximum_splitting_near_E_F_meV": 4,
+    "band_gap_eV": 3.21,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": -1,
+    "competing_magnetic_state": "AFM",
+    "AM_for_U_values_eV": [
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "c5850b5c-6195-49d7-9815-902fe6806810",
+    "pw_bands_workchain_uuid": "c6efbd12-a769-409b-929e-1f8291723a35"
+  },
+  {
+    "mc2d-ID": "mc2d-783",
+    "chemical_formula": "SrCo2Te3(ClO4)2",
+    "space_group_symbol": "P222_1",
+    "space_group_number": 17,
+    "self_consistent_hubbard_U_eV": 6.4,
+    "maximum_splitting_meV": 251,
+    "maximum_splitting_near_E_F_meV": 74,
+    "band_gap_eV": 2.96,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": -5,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "21146e80-a498-4caa-a0b6-3ee1cefb25dc",
+    "pw_bands_workchain_uuid": "64356966-1d1f-4920-af1a-d700e5400cd9"
+  },
+  {
+    "mc2d-ID": "mc2d-391",
+    "chemical_formula": "MnH2C2N3Cl",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 5.4,
+    "maximum_splitting_meV": 222,
+    "maximum_splitting_near_E_F_meV": 10,
+    "band_gap_eV": 3.98,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": -1,
+    "competing_magnetic_state": "AFM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "74c5a575-0cdd-4abb-a7d8-c139ceea3243",
+    "pw_bands_workchain_uuid": "28d84e23-7cda-4fbc-8ffd-11fed56d0859"
+  },
+  {
+    "mc2d-ID": "mc2d-1160",
+    "chemical_formula": "CoMoTeO6",
+    "space_group_symbol": "P2_12_12",
+    "space_group_number": 18,
+    "self_consistent_hubbard_U_eV": 6.7,
+    "maximum_splitting_meV": 205,
+    "maximum_splitting_near_E_F_meV": 89,
+    "band_gap_eV": 3.13,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 11,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "610970f6-a46c-4297-a672-8af48d33226c",
+    "pw_bands_workchain_uuid": "74005caf-d2a3-48c8-8daa-713ceda6efd4"
+  },
+  {
+    "mc2d-ID": "mc2d-273",
+    "chemical_formula": "MnMoTeO6",
+    "space_group_symbol": "P2_12_12",
+    "space_group_number": 18,
+    "self_consistent_hubbard_U_eV": 6.5,
+    "maximum_splitting_meV": 189,
+    "maximum_splitting_near_E_F_meV": 132,
+    "band_gap_eV": 3.01,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 3,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "d057b56a-3855-4e9d-9975-9d135b8b1588",
+    "pw_bands_workchain_uuid": "33c56d24-c307-46b7-b095-1248a2cefe0d"
+  },
+  {
+    "mc2d-ID": "mc2d-1729",
+    "chemical_formula": "CoH8N2(OF2)2",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 5.6,
+    "maximum_splitting_meV": 186,
+    "maximum_splitting_near_E_F_meV": 35,
+    "band_gap_eV": 5.03,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 28,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "d411f200-243e-4eab-b1a3-f60be774ae48",
+    "pw_bands_workchain_uuid": "1de04ef7-f880-4a38-9b9d-46bb7e2d25c1"
+  },
+  {
+    "mc2d-ID": "mc2d-1509",
+    "chemical_formula": "RuF4",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 3.7,
+    "maximum_splitting_meV": 171,
+    "maximum_splitting_near_E_F_meV": 49,
+    "band_gap_eV": 1.67,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 119,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "d5145292-27ce-4523-af43-11df99d0c6e1",
+    "pw_bands_workchain_uuid": "600cebd4-6e15-440d-a5c9-1dcc5955cc78"
+  },
+  {
+    "mc2d-ID": "mc2d-1326",
+    "chemical_formula": "ReCl3",
+    "space_group_symbol": "C2",
+    "space_group_number": 5,
+    "self_consistent_hubbard_U_eV": 3.9,
+    "maximum_splitting_meV": 155,
+    "maximum_splitting_near_E_F_meV": 67,
+    "band_gap_eV": 0.4,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": -1,
+    "competing_magnetic_state": "AFM",
+    "AM_for_U_values_eV": [
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "7dab1cfa-bfba-4290-b73c-367fc4efb4a8",
+    "pw_bands_workchain_uuid": "NA"
+  },
+  {
+    "mc2d-ID": "mc2d-1482",
+    "chemical_formula": "CuSe2O5",
+    "space_group_symbol": "Pmma",
+    "space_group_number": 51,
+    "self_consistent_hubbard_U_eV": 6.7,
+    "maximum_splitting_meV": 133,
+    "maximum_splitting_near_E_F_meV": 48,
+    "band_gap_eV": 2.05,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 25,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "b924ce1c-ca05-408f-ac7d-05b3e7c7986f",
+    "pw_bands_workchain_uuid": "976b9f55-f076-4576-b89e-3cd775c5a793"
+  },
+  {
+    "mc2d-ID": "mc2d-978",
+    "chemical_formula": "CuP2(HO)4",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 5.9,
+    "maximum_splitting_meV": 117,
+    "maximum_splitting_near_E_F_meV": 33,
+    "band_gap_eV": 2.36,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 0,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "fc317203-8f4a-4865-bac0-9275eb464ac4",
+    "pw_bands_workchain_uuid": "1835683e-226b-4b31-857c-f687bae0c7bc"
+  },
+  {
+    "mc2d-ID": "mc2d-683",
+    "chemical_formula": "NiPH4ClO3",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 7.3,
+    "maximum_splitting_meV": 96,
+    "maximum_splitting_near_E_F_meV": 31,
+    "band_gap_eV": 4.42,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 0,
+    "competing_magnetic_state": "AFM",
+    "AM_for_U_values_eV": [
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "7c0ee2dd-95be-4d2b-b005-7881fd269222",
+    "pw_bands_workchain_uuid": "67b0c0fd-447c-4cc3-97f7-bd7f64b13db3"
+  },
+  {
+    "mc2d-ID": "mc2d-1204",
+    "chemical_formula": "V4S9Br4",
+    "space_group_symbol": "P2_1",
+    "space_group_number": 4,
+    "self_consistent_hubbard_U_eV": 4.9,
+    "maximum_splitting_meV": 91,
+    "maximum_splitting_near_E_F_meV": 84,
+    "band_gap_eV": 0.0,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 0,
+    "competing_magnetic_state": "AFM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "b96d0ad7-d1a5-4656-8ac2-90f3651e273e",
+    "pw_bands_workchain_uuid": "067f7120-87da-438c-ae96-c95d66c25a7c"
+  },
+  {
+    "mc2d-ID": "mc2d-1568",
+    "chemical_formula": "V3(H3O5)2",
+    "space_group_symbol": "P4bm",
+    "space_group_number": 100,
+    "self_consistent_hubbard_U_eV": 5.6,
+    "maximum_splitting_meV": 91,
+    "maximum_splitting_near_E_F_meV": 21,
+    "band_gap_eV": 2.7,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": -1,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "6f6b344c-24a6-4c62-99e9-6a17f730f951",
+    "pw_bands_workchain_uuid": "4cb71cad-a1a6-449e-bd12-ea6f843a9ff0"
+  },
+  {
+    "mc2d-ID": "mc2d-539",
+    "chemical_formula": "CoH4(NO4)2",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 6.7,
+    "maximum_splitting_meV": 76,
+    "maximum_splitting_near_E_F_meV": 21,
+    "band_gap_eV": 3.58,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 15,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      2,
+      4,
+      6
+    ],
+    "altermagnets_workchain_uuid": "637075a8-073f-4916-85d3-930c6f3cebc1",
+    "pw_bands_workchain_uuid": "b12f4935-41ac-40bc-aff8-9de7a5674d0d"
+  },
+  {
+    "mc2d-ID": "mc2d-1025",
+    "chemical_formula": "AgRuF7",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 3.8,
+    "maximum_splitting_meV": 74,
+    "maximum_splitting_near_E_F_meV": 31,
+    "band_gap_eV": 0.03,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": -1,
+    "competing_magnetic_state": "AFM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "55c44e37-9cdf-431f-af16-79a71d9f08e5",
+    "pw_bands_workchain_uuid": "764dcf96-41aa-464e-9fda-ba1cd8c16a2c"
+  },
+  {
+    "mc2d-ID": "mc2d-456",
+    "chemical_formula": "Al2CuCl8",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 6.5,
+    "maximum_splitting_meV": 66,
+    "maximum_splitting_near_E_F_meV": 5,
+    "band_gap_eV": 1.11,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 0,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "07e631df-8711-41e0-a6f5-f39de1a94baf",
+    "pw_bands_workchain_uuid": "939c42ba-f3c8-45a3-9f07-0996df59c4b4"
+  },
+  {
+    "mc2d-ID": "mc2d-2650",
+    "chemical_formula": "CuH4C6S(NCl)2",
+    "space_group_symbol": "P2_1/m",
+    "space_group_number": 11,
+    "self_consistent_hubbard_U_eV": 6.6,
+    "maximum_splitting_meV": 53,
+    "maximum_splitting_near_E_F_meV": 9,
+    "band_gap_eV": 1.58,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 6,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "6b627fe7-9c0b-49f5-b3d8-682b20e64bfe",
+    "pw_bands_workchain_uuid": "5a692bf1-b558-4334-9cfe-af1d232c8b38"
+  },
+  {
+    "mc2d-ID": "mc2d-727",
+    "chemical_formula": "CuH6(CN2)4",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 6.3,
+    "maximum_splitting_meV": 51,
+    "maximum_splitting_near_E_F_meV": 13,
+    "band_gap_eV": 2.03,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 0,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      2,
+      4,
+      6,
+      8
+    ],
+    "altermagnets_workchain_uuid": "c1b97ea4-b4a4-4445-a3d1-6a60cd079a9b",
+    "pw_bands_workchain_uuid": "a32f272c-fed4-45fc-bdb9-2f253837a471"
+  },
+  {
+    "mc2d-ID": "mc2d-1010",
+    "chemical_formula": "VF4",
+    "space_group_symbol": "P2_1/c",
+    "space_group_number": 14,
+    "self_consistent_hubbard_U_eV": 5.4,
+    "maximum_splitting_meV": 27,
+    "maximum_splitting_near_E_F_meV": 6,
+    "band_gap_eV": 3.41,
+    "delta_E_min_AM_NAM_meV_per_magnetic_atom": 14,
+    "competing_magnetic_state": "FM",
+    "AM_for_U_values_eV": [
+      0,
+      6
+    ],
+    "altermagnets_workchain_uuid": "9ca913f2-192c-4353-91b2-b0af44157f81",
+    "pw_bands_workchain_uuid": "a3efdfed-4200-4354-9c27-a288a5c05c3b"
+  }
+]

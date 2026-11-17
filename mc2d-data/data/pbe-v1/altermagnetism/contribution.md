@@ -1,0 +1,1 @@
+This contribution accompanies A. Bose, N. Manko, M. Gibertini, and A. Marrazzo, [*Symmetry-Guided Computational Screening of Two-Dimensional Altermagnets with ab initio Hubbard Corrections*](https://arxiv.org/abs/2608.02925v1), arXiv:2608.02925v1 (2026).
