@@ -20,6 +20,7 @@ S3_BUCKET = "mc-discover-mcxd"
 LARGE_COLLECTIONS = {
     "mc3d": ["xrd", "supercon_phonon-vis"],
     "mc2d": [],
+    "mc1d": [],
 }
 
 # keep s3 loaded in a global variable

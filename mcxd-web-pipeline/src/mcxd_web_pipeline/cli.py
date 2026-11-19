@@ -153,5 +153,40 @@ def mc2d_upload_s3(selection):
     su.upload_collections("pbe-v1", selection)
 
 
+# ========================
+# mc1d
+# ========================
+
+
+@cli.group()
+def mc1d():
+    """MC1D pipeline commands."""
+    pass
+
+
+@mc1d.command("run-base")
+def mc1d_run_base():
+    """
+    Base & base-derived data. Fairly fast to run.
+    """
+    mmi = McMongoInjector(mcxd_type="mc1d")
+    mmi.inject_file_data("pbe-v1")
+    mmi.populate_base_derived("pbe-v1")
+    mmi.populate_dataset_index()
+
+
+@mc1d.command("upload-s3")
+@click.argument("selection", type=str)
+def mc1d_upload_s3(selection):
+    """
+    Upload collections to S3.
+
+    SELECTION - 'base' for all small base collections.
+    """
+    mmi = McMongoInjector(mcxd_type="mc1d")
+    su = MongoS3Uploader(mmi.mongo_uri, mmi.mongo_db_name, "mc1d")
+    su.upload_collections("pbe-v1", selection)
+
+
 if __name__ == "__main__":
     cli()

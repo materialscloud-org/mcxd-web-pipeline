@@ -2,6 +2,7 @@ mongo:
   uri: mongodb://localhost:27017/
   mc3d_db_name: mc3d
   mc2d_db_name: mc2d
+  mc1d_db_name: mc1d
 s3:
   private_bucket: mc-discover-mcxd
   public_bucket: mc-discover-mcxd-public
@@ -25,3 +26,8 @@ info:
     # dataset_label: {relevant external info}
     pbe-v1:
       aiida_profile: mc2d
+  # --------------------------------- #
+  mc1d:
+    # dataset_label: {relevant external info}
+    pbe-v1:
+      aiida_profile: mc1d
