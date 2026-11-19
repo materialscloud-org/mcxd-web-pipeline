@@ -22,6 +22,8 @@ Set in docker-compose
 S3_PREFIX=mc3d-mongo-dumps/collections-v2/
 ... or ...
 S3_PREFIX=mc2d-mongo-dumps/collections-v2/
+... or ...
+S3_PREFIX=mc1d-mongo-dumps/collections-v2/
 ```
 
 And run

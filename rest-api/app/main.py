@@ -7,7 +7,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from pymongo.errors import NetworkTimeout, ServerSelectionTimeoutError
 
-from .routers import mc2d_router, mc3d_router
+from .routers import mc1d_router, mc2d_router, mc3d_router
 from .utils import check_mongodb
 
 check_mongodb()
@@ -54,3 +54,4 @@ async def redirect_to_docs():
 # Include routers
 app.include_router(mc3d_router.router)
 app.include_router(mc2d_router.router)
+app.include_router(mc1d_router.router)
